@@ -7,6 +7,7 @@ import { Timer } from './components/Timer/Timer';
 import { TaskList } from './components/TaskList/TaskList';
 import { AddTask } from './components/AddTask/AddTask';
 import { StreakDisplay } from './components/Streak/StreakDisplay';
+import { RecurringTasks } from './components/RecurringTasks/RecurringTasks';
 import { BadgeNotification } from './components/Badges/BadgeNotification';
 import type { Badge } from './types';
 import styles from './App.module.css';
@@ -52,6 +53,10 @@ function App(): JSX.Element {
 
         <section className={styles['section--tasks']}>
           <TaskList onBadgeUnlock={handleBadgeUnlock} />
+        </section>
+
+        <section className={styles.section}>
+          <RecurringTasks />
         </section>
       </main>
 
