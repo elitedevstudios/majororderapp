@@ -1,0 +1,85 @@
+.streak {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background-color: var(--color-bg-mid);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.streak__main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.streak__fire {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.streak__icon {
+  font-size: var(--font-xl);
+  opacity: 0.4;
+  filter: grayscale(1);
+  transition: all var(--transition-normal);
+}
+
+.streak__icon--active {
+  opacity: 1;
+  filter: grayscale(0);
+  animation: flicker 1s ease-in-out infinite;
+}
+
+.streak__count {
+  font-size: var(--font-2xl);
+  color: var(--color-text-primary);
+}
+
+.streak__label {
+  font-size: var(--font-xs);
+  color: var(--color-text-secondary);
+  letter-spacing: 1px;
+}
+
+.streak__stats {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.streak__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.streak__stat-value {
+  font-size: var(--font-md);
+  color: var(--color-text-primary);
+}
+
+.streak__stat-label {
+  font-size: var(--font-xs);
+  color: var(--color-text-secondary);
+}
+
+.streak__badges {
+  display: flex;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+  padding-block-start: var(--space-sm);
+  border-block-start: 1px solid var(--color-border);
+}
+
+.streak__badge {
+  font-size: var(--font-md);
+  cursor: help;
+  transition: transform var(--transition-fast);
+}
+
+.streak__badge:hover {
+  transform: scale(1.2);
+}

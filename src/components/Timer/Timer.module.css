@@ -1,0 +1,133 @@
+.timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background-color: var(--color-bg-mid);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.timer__display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  inline-size: 100%;
+}
+
+.timer__icon {
+  font-size: var(--font-2xl);
+}
+
+.timer__label {
+  font-size: var(--font-xs);
+  color: var(--color-text-secondary);
+  letter-spacing: 2px;
+}
+
+.timer__time {
+  font-size: var(--font-3xl);
+  font-weight: normal;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.timer__time--urgent {
+  animation: timerPulse 1s ease-in-out infinite;
+  color: var(--color-red);
+}
+
+.timer__progress {
+  inline-size: 100%;
+  block-size: 8px;
+  background-color: var(--color-bg-dark);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.timer__progress-bar {
+  block-size: 100%;
+  background-color: var(--color-green);
+  transition: inline-size var(--transition-normal);
+}
+
+.timer__controls {
+  display: flex;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.timer__button {
+  padding-block: var(--space-sm);
+  padding-inline: var(--space-md);
+  font-size: var(--font-xs);
+  background-color: var(--color-bg-light);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.timer__button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.timer__button:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.timer__button--primary {
+  background-color: var(--color-green);
+  border-color: var(--color-green);
+  color: var(--color-bg-dark);
+}
+
+.timer__button--secondary {
+  background-color: var(--color-orange);
+  border-color: var(--color-orange);
+  color: var(--color-bg-dark);
+}
+
+.timer__button--danger {
+  background-color: var(--color-red);
+  border-color: var(--color-red);
+  color: var(--color-text-primary);
+}
+
+.timer__taskSelect {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  inline-size: 100%;
+}
+
+.timer__taskSelect-label {
+  font-size: var(--font-xs);
+  color: var(--color-text-secondary);
+}
+
+.timer__taskSelect-dropdown {
+  padding: var(--space-sm);
+  font-size: var(--font-xs);
+  background-color: var(--color-bg-dark);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.timer__taskSelect-dropdown:focus {
+  border-color: var(--color-blue);
+}
+
+.timer__stats {
+  font-size: var(--font-xs);
+  color: var(--color-text-secondary);
+}

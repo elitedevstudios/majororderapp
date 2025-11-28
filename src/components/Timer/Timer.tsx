@@ -1,0 +1,199 @@
+import { useEffect, useRef } from 'react';
+import { useTimerStore } from '../../stores/timerStore';
+import { useTaskStore } from '../../stores/taskStore';
+import { useStreakStore } from '../../stores/streakStore';
+import type { Badge } from '../../types';
+import styles from './Timer.module.css';
+
+interface TimerProps {
+  onBadgeUnlock: (badge: Badge) => void;
+}
+
+export function Timer({ onBadgeUnlock }: TimerProps): JSX.Element {
+  const intervalRef = useRef<number | null>(null);
+  
+  const {
+    mode,
+    status,
+    timeRemaining,
+    currentTaskId,
+    pomodorosCompleted,
+    dailyPomodorosCompleted,
+    config,
+    startTimer,
+    pauseTimer,
+    stopTimer,
+    skipToNext,
+    tick,
+    getProgress,
+  } = useTimerStore();
+
+  const tasks = useTaskStore((state) => state.tasks);
+  const updateTask = useTaskStore((state) => state.updateTask);
+  const checkBadgeUnlock = useStreakStore((state) => state.checkBadgeUnlock);
+
+  // Timer tick effect
+  useEffect(() => {
+    if (status === 'running') {
+      intervalRef.current = window.setInterval(() => {
+        tick();
+      }, 1000);
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [status, tick]);
+
+  // Handle timer completion
+  useEffect(() => {
+    if (timeRemaining === 0 && status === 'idle') {
+      // Play sound
+      playSound(mode === 'work' ? 'work-complete' : 'break-complete');
+      
+      if (mode === 'work' && currentTaskId) {
+        // Update task pomodoro count
+        const task = tasks.find((t) => t.id === currentTaskId);
+        if (task) {
+          updateTask(currentTaskId, {
+            pomodorosSpent: task.pomodorosSpent + 1,
+            actualMinutes: (task.actualMinutes || 0) + config.workMinutes,
+          });
+        }
+      }
+
+      // Check for Time Lord badge
+      if (dailyPomodorosCompleted + 1 >= 10) {
+        const badge = checkBadgeUnlock({ dailyPomodoros: dailyPomodorosCompleted + 1 });
+        if (badge) onBadgeUnlock(badge);
+      }
+
+      // Auto-advance to next mode
+      skipToNext();
+    }
+  }, [timeRemaining, status, mode, currentTaskId, tasks, updateTask, config.workMinutes, dailyPomodorosCompleted, checkBadgeUnlock, onBadgeUnlock, skipToNext]);
+
+  const playSound = (type: string): void => {
+    // Sound will be implemented with Howler.js
+    console.log('Playing sound:', type);
+  };
+
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const getModeLabel = (): string => {
+    switch (mode) {
+      case 'work':
+        return 'FOCUS TIME';
+      case 'shortBreak':
+        return 'SHORT BREAK';
+      case 'longBreak':
+        return 'LONG BREAK';
+    }
+  };
+
+  const getModeIcon = (): string => {
+    return mode === 'work' ? '🍅' : '☕';
+  };
+
+  const incompleteTasks = tasks.filter((t) => !t.completed);
+
+  return (
+    <div className={styles.timer}>
+      <div className={styles.timer__display}>
+        <span className={styles.timer__icon}>{getModeIcon()}</span>
+        <span className={styles.timer__label}>{getModeLabel()}</span>
+        <span className={`${styles.timer__time} ${status === 'running' && timeRemaining <= 60 ? styles['timer__time--urgent'] : ''}`}>
+          {formatTime(timeRemaining)}
+        </span>
+        
+        <div className={styles.timer__progress}>
+          <div 
+            className={styles['timer__progress-bar']}
+            style={{ inlineSize: `${getProgress()}%` }}
+          />
+        </div>
+      </div>
+
+      <div className={styles.timer__controls}>
+        {status === 'idle' && (
+          <button
+            className={`${styles.timer__button} ${styles['timer__button--primary']}`}
+            onClick={() => startTimer()}
+          >
+            ▶ START
+          </button>
+        )}
+        
+        {status === 'running' && (
+          <button
+            className={`${styles.timer__button} ${styles['timer__button--secondary']}`}
+            onClick={pauseTimer}
+          >
+            ⏸ PAUSE
+          </button>
+        )}
+        
+        {status === 'paused' && (
+          <>
+            <button
+              className={`${styles.timer__button} ${styles['timer__button--primary']}`}
+              onClick={() => startTimer()}
+            >
+              ▶ RESUME
+            </button>
+            <button
+              className={`${styles.timer__button} ${styles['timer__button--danger']}`}
+              onClick={stopTimer}
+            >
+              ⏹ STOP
+            </button>
+          </>
+        )}
+        
+        {status !== 'idle' && (
+          <button
+            className={styles.timer__button}
+            onClick={skipToNext}
+          >
+            ⏭ SKIP
+          </button>
+        )}
+      </div>
+
+      {mode === 'work' && status === 'idle' && incompleteTasks.length > 0 && (
+        <div className={styles.timer__taskSelect}>
+          <label className={styles['timer__taskSelect-label']}>
+            Link to task:
+          </label>
+          <select
+            className={styles['timer__taskSelect-dropdown']}
+            value={currentTaskId || ''}
+            onChange={(e) => startTimer(e.target.value || undefined)}
+          >
+            <option value="">-- Select task --</option>
+            {incompleteTasks.map((task) => (
+              <option key={task.id} value={task.id}>
+                {task.title}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      <div className={styles.timer__stats}>
+        <span>🍅 {pomodorosCompleted} today</span>
+      </div>
+    </div>
+  );
+}

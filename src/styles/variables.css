@@ -1,0 +1,74 @@
+:root {
+  /* SNES-era Color Palette */
+  --color-bg-dark: #1a1c2c;
+  --color-bg-mid: #333c57;
+  --color-bg-light: #566c86;
+  
+  /* Accent Colors */
+  --color-red: #b13e53;
+  --color-orange: #ef7d57;
+  --color-yellow: #ffcd75;
+  --color-green: #38b764;
+  --color-blue: #41a6f6;
+  --color-purple: #73eff7;
+  --color-pink: #a7f070;
+  
+  /* Priority Colors */
+  --color-priority-high: var(--color-red);
+  --color-priority-medium: var(--color-orange);
+  --color-priority-low: var(--color-green);
+  
+  /* Text Colors */
+  --color-text-primary: #f4f4f4;
+  --color-text-secondary: #94b0c2;
+  --color-text-disabled: #566c86;
+  
+  /* UI Colors */
+  --color-border: #566c86;
+  --color-border-active: var(--color-blue);
+  --color-success: var(--color-green);
+  --color-warning: var(--color-orange);
+  --color-error: var(--color-red);
+  
+  /* Spacing Scale (4px base) */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+  
+  /* Border Radius */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  
+  /* Font Sizes */
+  --font-xs: 8px;
+  --font-sm: 10px;
+  --font-md: 12px;
+  --font-lg: 16px;
+  --font-xl: 20px;
+  --font-2xl: 24px;
+  --font-3xl: 32px;
+  
+  /* Font Family */
+  --font-pixel: 'Press Start 2P', monospace;
+  --font-system: system-ui, -apple-system, sans-serif;
+  
+  /* Shadows */
+  --shadow-sm: 2px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 4px 4px 0 rgba(0, 0, 0, 0.3);
+  --shadow-lg: 6px 6px 0 rgba(0, 0, 0, 0.3);
+  
+  /* Transitions */
+  --transition-fast: 100ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow: 300ms ease;
+  
+  /* Z-Index Scale */
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-modal: 200;
+  --z-toast: 300;
+}

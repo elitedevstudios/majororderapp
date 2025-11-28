@@ -1,0 +1,27 @@
+.app {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100vh;
+  background-color: var(--color-bg-dark);
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding-inline: var(--space-md);
+  padding-block: var(--space-md);
+  gap: var(--space-md);
+  overflow-y: auto;
+}
+
+.section {
+  flex-shrink: 0;
+}
+
+.section--tasks {
+  flex: 1;
+  min-block-size: 200px;
+  display: flex;
+  flex-direction: column;
+}
