@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useTimerStore } from '../../stores/timerStore';
 import { useTaskStore } from '../../stores/taskStore';
 import { useStreakStore } from '../../stores/streakStore';
+import { playSound } from '../../utils/sound';
 import type { Badge } from '../../types';
 import styles from './Timer.module.css';
 
@@ -56,7 +57,7 @@ export function Timer({ onBadgeUnlock }: TimerProps): JSX.Element {
   useEffect(() => {
     if (timeRemaining === 0 && status === 'idle') {
       // Play sound
-      playSound(mode === 'work' ? 'work-complete' : 'break-complete');
+      playSound(mode === 'work' ? 'workComplete' : 'breakComplete');
       
       if (mode === 'work' && currentTaskId) {
         // Update task pomodoro count
@@ -80,9 +81,9 @@ export function Timer({ onBadgeUnlock }: TimerProps): JSX.Element {
     }
   }, [timeRemaining, status, mode, currentTaskId, tasks, updateTask, config.workMinutes, dailyPomodorosCompleted, checkBadgeUnlock, onBadgeUnlock, skipToNext]);
 
-  const playSound = (type: string): void => {
-    // Sound will be implemented with Howler.js
-    console.log('Playing sound:', type);
+  const handleStartTimer = (taskId?: string): void => {
+    playSound('timerStart');
+    startTimer(taskId);
   };
 
   const formatTime = (seconds: number): string => {
@@ -129,7 +130,7 @@ export function Timer({ onBadgeUnlock }: TimerProps): JSX.Element {
         {status === 'idle' && (
           <button
             className={`${styles.timer__button} ${styles['timer__button--primary']}`}
-            onClick={() => startTimer()}
+            onClick={() => handleStartTimer()}
           >
             ▶ START
           </button>
@@ -148,7 +149,7 @@ export function Timer({ onBadgeUnlock }: TimerProps): JSX.Element {
           <>
             <button
               className={`${styles.timer__button} ${styles['timer__button--primary']}`}
-              onClick={() => startTimer()}
+              onClick={() => handleStartTimer()}
             >
               ▶ RESUME
             </button>
@@ -179,7 +180,7 @@ export function Timer({ onBadgeUnlock }: TimerProps): JSX.Element {
           <select
             className={styles['timer__taskSelect-dropdown']}
             value={currentTaskId || ''}
-            onChange={(e) => startTimer(e.target.value || undefined)}
+            onChange={(e) => handleStartTimer(e.target.value || undefined)}
           >
             <option value="">-- Select task --</option>
             {incompleteTasks.map((task) => (

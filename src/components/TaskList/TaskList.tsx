@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTaskStore } from '../../stores/taskStore';
 import { useStreakStore } from '../../stores/streakStore';
+import { playSound } from '../../utils/sound';
 import { TaskItem } from './TaskItem';
 import type { Badge, Task } from '../../types';
 import styles from './TaskList.module.css';
@@ -34,6 +35,7 @@ export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
     const completedTask = completeTask(task.id);
     if (!completedTask) return;
 
+    playSound('taskComplete');
     incrementTasksCompleted();
 
     // Check for badges

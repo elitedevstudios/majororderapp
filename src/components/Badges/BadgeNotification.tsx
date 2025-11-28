@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { playSound } from '../../utils/sound';
 import type { Badge } from '../../types';
 import styles from './BadgeNotification.module.css';
 
@@ -9,6 +10,9 @@ interface BadgeNotificationProps {
 
 export function BadgeNotification({ badge, onDismiss }: BadgeNotificationProps): JSX.Element {
   useEffect(() => {
+    // Play badge unlock sound
+    playSound('badgeUnlock');
+    
     const timer = setTimeout(() => {
       onDismiss();
     }, 5000);
