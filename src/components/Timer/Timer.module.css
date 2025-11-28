@@ -1,118 +1,134 @@
+/* Minimal Timer with Accent Color Scheme */
 .timer {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-lg);
-  background-color: var(--color-bg-mid);
-  border: 2px solid var(--color-border);
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: linear-gradient(135deg, var(--color-timer-bg) 0%, #1f1235 100%);
+  border: 2px solid var(--color-purple);
   border-radius: var(--radius-md);
+  box-shadow: 0 0 20px var(--color-timer-glow);
 }
 
 .timer__display {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: var(--space-sm);
-  inline-size: 100%;
+  flex: 1;
 }
 
 .timer__icon {
-  font-size: var(--font-2xl);
+  font-size: var(--font-lg);
+}
+
+.timer__mode {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .timer__label {
-  font-size: var(--font-xs);
-  color: var(--color-text-secondary);
-  letter-spacing: 2px;
+  font-size: 6px;
+  color: var(--color-purple);
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 .timer__time {
-  font-size: var(--font-3xl);
+  font-size: var(--font-xl);
   font-weight: normal;
   color: var(--color-text-primary);
   font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 10px var(--color-timer-glow);
 }
 
 .timer__time--urgent {
   animation: timerUrgent 0.5s ease-in-out infinite;
   color: var(--color-red);
+  text-shadow: 0 0 10px rgba(177, 62, 83, 0.5);
 }
 
 @keyframes timerUrgent {
   0%, 100% {
-    transform: scale(1);
     opacity: 1;
   }
   50% {
-    transform: scale(1.05);
-    opacity: 0.8;
+    opacity: 0.6;
   }
 }
 
 .timer__progress {
-  inline-size: 100%;
-  block-size: 8px;
-  background-color: var(--color-bg-dark);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  flex: 1;
+  block-size: 4px;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 2px;
   overflow: hidden;
 }
 
 .timer__progress-bar {
   block-size: 100%;
-  background-color: var(--color-green);
+  background: linear-gradient(90deg, var(--color-purple) 0%, var(--color-cyan) 100%);
   transition: inline-size var(--transition-normal);
+  box-shadow: 0 0 6px var(--color-purple);
 }
 
 .timer__controls {
   display: flex;
-  gap: var(--space-sm);
-  flex-wrap: wrap;
-  justify-content: center;
+  gap: var(--space-xs);
 }
 
 .timer__button {
-  padding-block: var(--space-sm);
-  padding-inline: var(--space-md);
-  font-size: var(--font-xs);
-  background-color: var(--color-bg-light);
-  border: 2px solid var(--color-border);
+  padding-block: var(--space-xs);
+  padding-inline: var(--space-sm);
+  font-size: 6px;
+  background-color: transparent;
+  border: 1px solid var(--color-purple);
   border-radius: var(--radius-sm);
+  color: var(--color-purple);
   cursor: pointer;
   transition: all var(--transition-fast);
-  box-shadow: var(--shadow-sm);
+  letter-spacing: 1px;
 }
 
 .timer__button:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  background-color: var(--color-purple);
+  color: var(--color-bg-dark);
+  box-shadow: 0 0 8px var(--color-timer-glow);
 }
 
 .timer__button:active {
-  transform: translateY(0);
-  box-shadow: none;
+  transform: scale(0.95);
 }
 
 .timer__button--primary {
-  background-color: var(--color-green);
-  border-color: var(--color-green);
+  background-color: var(--color-purple);
+  border-color: var(--color-purple);
   color: var(--color-bg-dark);
 }
 
 .timer__button--primary:hover {
-  box-shadow: 0 0 12px var(--color-green);
+  box-shadow: 0 0 12px var(--color-purple);
+  background-color: var(--color-cyan);
+  border-color: var(--color-cyan);
 }
 
 .timer__button--secondary {
-  background-color: var(--color-orange);
   border-color: var(--color-orange);
+  color: var(--color-orange);
+}
+
+.timer__button--secondary:hover {
+  background-color: var(--color-orange);
   color: var(--color-bg-dark);
 }
 
 .timer__button--danger {
-  background-color: var(--color-red);
   border-color: var(--color-red);
+  color: var(--color-red);
+}
+
+.timer__button--danger:hover {
+  background-color: var(--color-red);
   color: var(--color-text-primary);
 }
 

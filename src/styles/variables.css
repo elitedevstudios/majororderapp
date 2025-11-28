@@ -10,8 +10,14 @@
   --color-yellow: #ffcd75;
   --color-green: #38b764;
   --color-blue: #41a6f6;
-  --color-purple: #73eff7;
+  --color-cyan: #73eff7;
+  --color-purple: #9b6dff;
   --color-pink: #a7f070;
+  
+  /* Timer Accent - Deep purple/magenta theme */
+  --color-timer-bg: #2d1b4e;
+  --color-timer-accent: #9b6dff;
+  --color-timer-glow: rgba(155, 109, 255, 0.3);
   
   /* Priority Colors */
   --color-priority-high: var(--color-red);

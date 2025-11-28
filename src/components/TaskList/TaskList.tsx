@@ -10,8 +10,11 @@ interface TaskListProps {
   onBadgeUnlock: (badge: Badge) => void;
 }
 
+const MAX_VISIBLE_TASKS = 3;
+
 export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [showAll, setShowAll] = useState(false);
   
   const tasks = useTaskStore((state) => state.tasks);
   const completeTask = useTaskStore((state) => state.completeTask);
@@ -119,11 +122,29 @@ export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
     );
   }
 
+  // Separate incomplete and completed tasks
+  const incompleteTasks = sortedTasks.filter((t) => !t.completed);
+  const completedTasks = sortedTasks.filter((t) => t.completed);
+  
+  // Show top 3 incomplete, or all if expanded
+  const visibleIncompleteTasks = showAll 
+    ? incompleteTasks 
+    : incompleteTasks.slice(0, MAX_VISIBLE_TASKS);
+  
+  const hiddenCount = incompleteTasks.length - MAX_VISIBLE_TASKS;
+  const hasHiddenTasks = hiddenCount > 0 && !showAll;
+
   return (
     <div className={styles['task-list']}>
-      <h2 className={styles['task-list__title']}>ORDERS</h2>
+      <div className={styles['task-list__header']}>
+        <h2 className={styles['task-list__title']}>MAJOR ORDERS</h2>
+        <span className={styles['task-list__count']}>
+          {incompleteTasks.length} active
+        </span>
+      </div>
+      
       <ul className={styles['task-list__items']}>
-        {sortedTasks.map((task, index) => (
+        {visibleIncompleteTasks.map((task, index) => (
           <TaskItem
             key={task.id}
             task={task}
@@ -138,6 +159,32 @@ export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
           />
         ))}
       </ul>
+
+      {hasHiddenTasks && (
+        <button 
+          className={styles['task-list__expand']}
+          onClick={() => setShowAll(true)}
+        >
+          + {hiddenCount} more order{hiddenCount > 1 ? 's' : ''}
+        </button>
+      )}
+
+      {showAll && incompleteTasks.length > MAX_VISIBLE_TASKS && (
+        <button 
+          className={styles['task-list__expand']}
+          onClick={() => setShowAll(false)}
+        >
+          Show top 3 only
+        </button>
+      )}
+
+      {completedTasks.length > 0 && (
+        <div className={styles['task-list__completed']}>
+          <span className={styles['task-list__completed-label']}>
+            ✓ {completedTasks.length} completed today
+          </span>
+        </div>
+      )}
     </div>
   );
 }

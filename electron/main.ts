@@ -16,10 +16,11 @@ const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
 
 function createWindow(): void {
   mainWindow = new BrowserWindow({
-    width: 420,
-    height: 700,
-    minWidth: 380,
-    minHeight: 500,
+    width: 360,
+    height: 600,
+    minWidth: 320,
+    maxWidth: 480,
+    minHeight: 480,
     frame: true,
     titleBarStyle: 'hiddenInset',
     backgroundColor: '#1a1c2c',

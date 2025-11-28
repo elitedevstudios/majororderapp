@@ -18,7 +18,6 @@ export function Timer({ onBadgeUnlock }: TimerProps): JSX.Element {
     status,
     timeRemaining,
     currentTaskId,
-    pomodorosCompleted,
     dailyPomodorosCompleted,
     config,
     startTimer,
@@ -126,32 +125,36 @@ export function Timer({ onBadgeUnlock }: TimerProps): JSX.Element {
     return mode === 'work' ? '🍅' : '☕';
   };
 
-  const incompleteTasks = tasks.filter((t) => !t.completed);
-
   return (
     <div className={styles.timer}>
+      {/* Left: Icon + Mode + Time */}
       <div className={styles.timer__display}>
         <span className={styles.timer__icon}>{getModeIcon()}</span>
-        <span className={styles.timer__label}>{getModeLabel()}</span>
-        <span className={`${styles.timer__time} ${status === 'running' && timeRemaining <= 60 ? styles['timer__time--urgent'] : ''}`}>
-          {formatTime(timeRemaining)}
-        </span>
-        
-        <div className={styles.timer__progress}>
-          <div 
-            className={styles['timer__progress-bar']}
-            style={{ inlineSize: `${getProgress()}%` }}
-          />
+        <div className={styles.timer__mode}>
+          <span className={styles.timer__label}>{getModeLabel()}</span>
+          <span className={`${styles.timer__time} ${status === 'running' && timeRemaining <= 60 ? styles['timer__time--urgent'] : ''}`}>
+            {formatTime(timeRemaining)}
+          </span>
         </div>
       </div>
 
+      {/* Center: Progress bar */}
+      <div className={styles.timer__progress}>
+        <div 
+          className={styles['timer__progress-bar']}
+          style={{ inlineSize: `${getProgress()}%` }}
+        />
+      </div>
+
+      {/* Right: Controls */}
       <div className={styles.timer__controls}>
         {status === 'idle' && (
           <button
             className={`${styles.timer__button} ${styles['timer__button--primary']}`}
             onClick={() => handleStartTimer()}
+            title="Start timer (Space)"
           >
-            ▶ START
+            ▶
           </button>
         )}
         
@@ -159,8 +162,9 @@ export function Timer({ onBadgeUnlock }: TimerProps): JSX.Element {
           <button
             className={`${styles.timer__button} ${styles['timer__button--secondary']}`}
             onClick={pauseTimer}
+            title="Pause timer (Space)"
           >
-            ⏸ PAUSE
+            ⏸
           </button>
         )}
         
@@ -169,14 +173,16 @@ export function Timer({ onBadgeUnlock }: TimerProps): JSX.Element {
             <button
               className={`${styles.timer__button} ${styles['timer__button--primary']}`}
               onClick={() => handleStartTimer()}
+              title="Resume timer (Space)"
             >
-              ▶ RESUME
+              ▶
             </button>
             <button
               className={`${styles.timer__button} ${styles['timer__button--danger']}`}
               onClick={stopTimer}
+              title="Stop timer"
             >
-              ⏹ STOP
+              ⏹
             </button>
           </>
         )}
@@ -185,34 +191,11 @@ export function Timer({ onBadgeUnlock }: TimerProps): JSX.Element {
           <button
             className={styles.timer__button}
             onClick={skipToNext}
+            title="Skip to next"
           >
-            ⏭ SKIP
+            ⏭
           </button>
         )}
-      </div>
-
-      {mode === 'work' && status === 'idle' && incompleteTasks.length > 0 && (
-        <div className={styles.timer__taskSelect}>
-          <label className={styles['timer__taskSelect-label']}>
-            Link to task:
-          </label>
-          <select
-            className={styles['timer__taskSelect-dropdown']}
-            value={currentTaskId || ''}
-            onChange={(e) => handleStartTimer(e.target.value || undefined)}
-          >
-            <option value="">-- Select task --</option>
-            {incompleteTasks.map((task) => (
-              <option key={task.id} value={task.id}>
-                {task.title}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      <div className={styles.timer__stats}>
-        <span>🍅 {pomodorosCompleted} today</span>
       </div>
     </div>
   );
