@@ -2,56 +2,46 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-inline: var(--space-md);
-  padding-block: var(--space-md);
+  /* Extra padding on start to clear macOS traffic lights */
+  padding-inline-start: 80px;
+  padding-inline-end: var(--space-md);
+  padding-block: var(--space-sm);
   background-color: var(--color-bg-mid);
   border-block-end: 2px solid var(--color-border);
   -webkit-app-region: drag;
 }
 
 .header__title {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-}
-
-.header__icon {
-  font-size: var(--font-lg);
-}
-
-.header__text {
-  font-size: var(--font-sm);
+  font-size: var(--font-md);
   font-weight: normal;
-  letter-spacing: 2px;
+  letter-spacing: 3px;
   color: var(--color-text-primary);
+  margin: 0;
 }
 
 .header__actions {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: var(--space-xs);
   -webkit-app-region: no-drag;
 }
 
 .header__pin {
   -webkit-app-region: no-drag;
   padding: var(--space-xs);
-  font-size: var(--font-md);
-  background-color: var(--color-bg-light);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  font-size: var(--font-lg);
+  background: transparent;
+  border: none;
   cursor: pointer;
   transition: all var(--transition-fast);
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 .header__pin:hover {
-  opacity: 1;
-  background-color: var(--color-bg-mid);
+  opacity: 0.8;
+  transform: scale(1.1);
 }
 
 .header__pin--active {
   opacity: 1;
-  background-color: var(--color-blue);
-  border-color: var(--color-blue);
 }

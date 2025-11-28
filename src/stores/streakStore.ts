@@ -10,9 +10,19 @@ interface StreakStoreState extends StreakData {
   checkBadgeUnlock: (context: BadgeContext) => Badge | null;
   resetStreak: () => void;
   
+  // Queries
+  getStreakStatus: () => StreakStatus;
+  
   // Persistence
   loadFromStorage: () => Promise<void>;
   saveToStorage: () => Promise<void>;
+}
+
+interface StreakStatus {
+  isActive: boolean;      // Has an active streak (completed yesterday or today)
+  isPending: boolean;     // Completed yesterday, waiting for today
+  isCompletedToday: boolean;
+  potentialStreak: number; // What streak will be after completing today
 }
 
 interface BadgeContext {
@@ -181,6 +191,36 @@ export const useStreakStore = create<StreakStoreState>((set, get) => ({
     get().saveToStorage();
   },
 
+  getStreakStatus: () => {
+    const { currentStreak, lastCompletedDate } = get();
+    const today = getToday();
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    
+    const isCompletedToday = lastCompletedDate === today;
+    const completedYesterday = lastCompletedDate === yesterdayStr;
+    const isActive = isCompletedToday || completedYesterday;
+    const isPending = completedYesterday && !isCompletedToday;
+    
+    // Calculate what the streak will be after completing today
+    let potentialStreak: number;
+    if (isCompletedToday) {
+      potentialStreak = currentStreak; // Already at max for today
+    } else if (completedYesterday) {
+      potentialStreak = currentStreak + 1; // Will increment
+    } else {
+      potentialStreak = 1; // Will start fresh
+    }
+    
+    return {
+      isActive,
+      isPending,
+      isCompletedToday,
+      potentialStreak,
+    };
+  },
+
   loadFromStorage: async () => {
     try {
       const streakData = await window.electronAPI.store.get('streakData') as Partial<StreakStoreState> | undefined;
@@ -209,8 +249,9 @@ export const useStreakStore = create<StreakStoreState>((set, get) => ({
         if (streakData.lastCompletedDate && 
             streakData.lastCompletedDate !== today && 
             streakData.lastCompletedDate !== yesterdayStr) {
-          // Streak broken
+          // Streak broken - reset and persist
           set({ currentStreak: 0 });
+          get().saveToStorage();
         }
       }
     } catch (error) {

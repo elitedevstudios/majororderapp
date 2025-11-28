@@ -26,20 +26,4 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
 });
 
-// Type declarations for renderer
-declare global {
-  interface Window {
-    electronAPI: {
-      store: {
-        get: (key: string) => Promise<unknown>;
-        set: (key: string, value: unknown) => Promise<void>;
-        delete: (key: string) => Promise<void>;
-      };
-      updateTimer: (time: string, status: 'idle' | 'running' | 'paused') => void;
-      updateStreak: (streak: number) => void;
-      toggleAlwaysOnTop: () => void;
-      getAlwaysOnTop: () => Promise<boolean>;
-      onTrayToggleTimer: (callback: () => void) => () => void;
-    };
-  }
-}
+// Type declarations are in src/types/index.ts

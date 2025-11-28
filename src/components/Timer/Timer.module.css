@@ -57,6 +57,12 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .timer__time--urgent {
+    animation: none;
+  }
+}
+
 .timer__progress {
   flex: 1;
   block-size: 4px;

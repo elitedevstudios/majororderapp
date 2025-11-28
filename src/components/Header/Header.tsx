@@ -20,10 +20,7 @@ export function Header(): JSX.Element {
 
   return (
     <header className={styles.header}>
-      <div className={styles.header__title}>
-        <span className={styles.header__icon}>⚔️</span>
-        <h1 className={styles.header__text}>MAJOR ORDER</h1>
-      </div>
+      <h1 className={styles.header__title}>MAJOR ORDER</h1>
       
       <div className={styles.header__actions}>
         <button

@@ -7,6 +7,9 @@ export function StreakDisplay(): JSX.Element {
   const longestStreak = useStreakStore((state) => state.longestStreak);
   const totalTasksCompleted = useStreakStore((state) => state.totalTasksCompleted);
   const badges = useStreakStore((state) => state.badges);
+  const getStreakStatus = useStreakStore((state) => state.getStreakStatus);
+  
+  const status = getStreakStatus();
 
   // Update tray with current streak
   useEffect(() => {
@@ -15,15 +18,31 @@ export function StreakDisplay(): JSX.Element {
 
   const unlockedBadges = badges.filter((b) => b.unlockedAt);
 
+  // Determine display state
+  const isStreakActive = status.isActive || currentStreak > 0;
+  const showPending = status.isPending;
+
   return (
     <div className={styles.streak}>
       <div className={styles.streak__main}>
         <div className={styles.streak__fire}>
-          <span className={`${styles.streak__icon} ${currentStreak > 0 ? styles['streak__icon--active'] : ''}`}>
+          <span className={`${styles.streak__icon} ${isStreakActive ? styles['streak__icon--active'] : ''} ${showPending ? styles['streak__icon--pending'] : ''}`}>
             🔥
           </span>
-          <span className={styles.streak__count}>{currentStreak}</span>
-          <span className={styles.streak__label}>DAY STREAK</span>
+          <div className={styles.streak__numbers}>
+            {showPending ? (
+              <>
+                <span className={styles.streak__count}>{currentStreak}</span>
+                <span className={styles.streak__arrow}>→</span>
+                <span className={styles['streak__count--pending']}>{status.potentialStreak}</span>
+              </>
+            ) : (
+              <span className={styles.streak__count}>{currentStreak}</span>
+            )}
+          </div>
+          <span className={styles.streak__label}>
+            {showPending ? 'COMPLETE TODAY' : 'DAY STREAK'}
+          </span>
         </div>
         
         <div className={styles.streak__stats}>

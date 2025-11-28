@@ -209,6 +209,47 @@ describe('taskStore', () => {
     });
   });
 
+  describe('getCompletedToday', () => {
+    it('should return only tasks completed today', () => {
+      const { addTask, completeTask, getCompletedToday } = useTaskStore.getState();
+      
+      addTask('Task 1', 'low');
+      addTask('Task 2', 'medium');
+      
+      const { tasks } = useTaskStore.getState();
+      completeTask(tasks[0].id);
+      
+      const completedToday = getCompletedToday();
+      expect(completedToday).toHaveLength(1);
+      expect(completedToday[0].title).toBe('Task 1');
+    });
+
+    it('should not include tasks completed on previous days', () => {
+      const { addTask, getCompletedToday } = useTaskStore.getState();
+      
+      addTask('Task 1', 'low');
+      
+      // Manually set a task as completed yesterday
+      const yesterday = Date.now() - 24 * 60 * 60 * 1000;
+      useTaskStore.setState({
+        tasks: [{
+          id: 'old-task',
+          title: 'Old Task',
+          priority: 'low',
+          order: 0,
+          completed: true,
+          completedAt: yesterday,
+          pomodorosSpent: 0,
+          createdAt: yesterday,
+          isRecurring: false,
+        }],
+      });
+      
+      const completedToday = getCompletedToday();
+      expect(completedToday).toHaveLength(0);
+    });
+  });
+
   describe('recurring tasks', () => {
     it('should add recurring task template', () => {
       const { addRecurringTask } = useTaskStore.getState();

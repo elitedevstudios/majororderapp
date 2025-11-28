@@ -51,7 +51,24 @@
   background-color: var(--color-bg-mid);
   border: 2px solid var(--color-border);
   border-radius: var(--radius-sm);
-  animation: fadeIn 0.2s ease-out;
+  animation: addTaskFadeIn 0.2s ease-out;
+}
+
+@keyframes addTaskFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .add-task__options {
+    animation: none;
+  }
 }
 
 .add-task__option {

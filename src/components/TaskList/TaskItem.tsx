@@ -3,7 +3,6 @@ import styles from './TaskList.module.css';
 
 interface TaskItemProps {
   task: Task;
-  index: number;
   isDragging: boolean;
   timeFeedback: string | null;
   onComplete: () => void;

@@ -4,17 +4,18 @@
 
 .settings__trigger {
   padding: var(--space-xs);
-  font-size: var(--font-md);
-  background-color: var(--color-bg-light);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  font-size: var(--font-lg);
+  background: transparent;
+  border: none;
   cursor: pointer;
   transition: all var(--transition-fast);
   -webkit-app-region: no-drag;
+  opacity: 0.5;
 }
 
 .settings__trigger:hover {
-  background-color: var(--color-bg-mid);
+  opacity: 0.8;
+  transform: scale(1.1);
 }
 
 .settings__overlay {
@@ -126,6 +127,75 @@
   background-color: var(--color-blue);
   border-color: var(--color-blue);
   color: var(--color-bg-dark);
+}
+
+/* Reset Button */
+.settings__resetBtn {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-xs);
+  background-color: transparent;
+  border: 2px solid var(--color-red);
+  border-radius: var(--radius-sm);
+  color: var(--color-red);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  letter-spacing: 1px;
+}
+
+.settings__resetBtn:hover {
+  background-color: var(--color-red);
+  color: var(--color-bg-dark);
+}
+
+.settings__resetConfirm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.settings__resetWarning {
+  font-size: var(--font-xs);
+  color: var(--color-red);
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.settings__resetActions {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.settings__resetConfirmBtn {
+  padding: var(--space-xs) var(--space-md);
+  font-size: var(--font-xs);
+  background-color: var(--color-red);
+  border: 2px solid var(--color-red);
+  border-radius: var(--radius-sm);
+  color: var(--color-bg-dark);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-weight: bold;
+}
+
+.settings__resetConfirmBtn:hover {
+  background-color: #ff6b6b;
+  border-color: #ff6b6b;
+}
+
+.settings__resetCancelBtn {
+  padding: var(--space-xs) var(--space-md);
+  font-size: var(--font-xs);
+  background-color: var(--color-bg-dark);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.settings__resetCancelBtn:hover {
+  background-color: var(--color-bg-light);
+  color: var(--color-text-primary);
 }
 
 .settings__info {

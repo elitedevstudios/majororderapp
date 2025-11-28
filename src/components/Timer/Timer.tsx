@@ -12,6 +12,7 @@ interface TimerProps {
 
 export function Timer({ onBadgeUnlock }: TimerProps): JSX.Element {
   const intervalRef = useRef<number | null>(null);
+  const prevTimeRef = useRef<number | null>(null);
   
   const {
     mode,
@@ -77,33 +78,39 @@ export function Timer({ onBadgeUnlock }: TimerProps): JSX.Element {
     return cleanup;
   }, [status, startTimer, pauseTimer]);
 
-  // Handle timer completion
+  // Handle timer completion - detect when timer reaches 0
   useEffect(() => {
-    if (timeRemaining === 0 && status === 'idle') {
-      // Play sound
-      playSound(mode === 'work' ? 'workComplete' : 'breakComplete');
-      
-      if (mode === 'work' && currentTaskId) {
-        // Update task pomodoro count
-        const task = tasks.find((t) => t.id === currentTaskId);
-        if (task) {
-          updateTask(currentTaskId, {
-            pomodorosSpent: task.pomodorosSpent + 1,
-            actualMinutes: (task.actualMinutes || 0) + config.workMinutes,
-          });
-        }
+    // Only trigger completion when time transitions from >0 to 0
+    const wasRunning = prevTimeRef.current !== null && prevTimeRef.current > 0;
+    const justCompleted = timeRemaining === 0 && wasRunning;
+    
+    prevTimeRef.current = timeRemaining;
+    
+    if (!justCompleted) return;
+    
+    // Play sound
+    playSound(mode === 'work' ? 'workComplete' : 'breakComplete');
+    
+    if (mode === 'work' && currentTaskId) {
+      // Update task pomodoro count
+      const task = tasks.find((t) => t.id === currentTaskId);
+      if (task) {
+        updateTask(currentTaskId, {
+          pomodorosSpent: task.pomodorosSpent + 1,
+          actualMinutes: (task.actualMinutes || 0) + config.workMinutes,
+        });
       }
-
-      // Check for Time Lord badge
-      if (dailyPomodorosCompleted + 1 >= 10) {
-        const badge = checkBadgeUnlock({ dailyPomodoros: dailyPomodorosCompleted + 1 });
-        if (badge) onBadgeUnlock(badge);
-      }
-
-      // Auto-advance to next mode
-      skipToNext();
     }
-  }, [timeRemaining, status, mode, currentTaskId, tasks, updateTask, config.workMinutes, dailyPomodorosCompleted, checkBadgeUnlock, onBadgeUnlock, skipToNext]);
+
+    // Check for Time Lord badge
+    if (dailyPomodorosCompleted + 1 >= 10) {
+      const badge = checkBadgeUnlock({ dailyPomodoros: dailyPomodorosCompleted + 1 });
+      if (badge) onBadgeUnlock(badge);
+    }
+
+    // Auto-advance to next mode
+    skipToNext();
+  }, [timeRemaining, mode, currentTaskId, tasks, updateTask, config.workMinutes, dailyPomodorosCompleted, checkBadgeUnlock, onBadgeUnlock, skipToNext]);
 
   const handleStartTimer = (taskId?: string): void => {
     playSound('timerStart');

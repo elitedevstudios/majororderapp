@@ -127,6 +127,12 @@
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .task-item--completed {
+    animation: none;
+  }
+}
+
 .task-item--completed .task-item__title {
   text-decoration: line-through;
   color: var(--color-text-secondary);

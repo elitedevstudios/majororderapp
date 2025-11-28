@@ -33,7 +33,10 @@ function createWindow(): void {
 
   if (VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(VITE_DEV_SERVER_URL);
-    mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools({ mode: 'detach' });
+    // Remove width constraints in dev mode for easier debugging
+    mainWindow.setMinimumSize(320, 480);
+    mainWindow.setMaximumSize(0, 0); // 0 means no limit
   } else {
     mainWindow.loadFile(path.join(DIST, 'index.html'));
   }

@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { useTimerStore } from '../../stores/timerStore';
+import { useTaskStore } from '../../stores/taskStore';
+import { useStreakStore } from '../../stores/streakStore';
 import { setSoundEnabled, playSound } from '../../utils/sound';
 import styles from './Settings.module.css';
 
 export function Settings(): JSX.Element {
   const [isOpen, setIsOpen] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   
   const soundEnabled = useSettingsStore((state) => state.soundEnabled);
   const workMinutes = useSettingsStore((state) => state.workMinutes);
@@ -34,6 +37,28 @@ export function Settings(): JSX.Element {
   };
 
   const workDurationOptions = [15, 20, 25, 30, 45, 60];
+
+  const handleResetAllData = async (): Promise<void> => {
+    // Clear all stores
+    useTaskStore.setState({ tasks: [], recurringTasks: [] });
+    useStreakStore.setState({
+      currentStreak: 0,
+      longestStreak: 0,
+      lastCompletedDate: undefined,
+      totalTasksCompleted: 0,
+      badges: useStreakStore.getState().badges.map(b => ({ ...b, unlockedAt: undefined })),
+    });
+    useTimerStore.getState().stopTimer();
+    
+    // Clear persisted data
+    await window.electronAPI.store.delete('tasks');
+    await window.electronAPI.store.delete('recurringTasks');
+    await window.electronAPI.store.delete('streakData');
+    
+    setShowResetConfirm(false);
+    setIsOpen(false);
+    playSound('click');
+  };
 
   return (
     <div className={styles.settings}>
@@ -90,6 +115,37 @@ export function Settings(): JSX.Element {
                     </button>
                   ))}
                 </div>
+              </div>
+
+              {/* Reset Data */}
+              <div className={styles.settings__option}>
+                <span className={styles.settings__label}>Reset All Data</span>
+                {!showResetConfirm ? (
+                  <button
+                    className={styles.settings__resetBtn}
+                    onClick={() => setShowResetConfirm(true)}
+                  >
+                    RESET
+                  </button>
+                ) : (
+                  <div className={styles.settings__resetConfirm}>
+                    <span className={styles.settings__resetWarning}>Are you sure?</span>
+                    <div className={styles.settings__resetActions}>
+                      <button
+                        className={styles.settings__resetConfirmBtn}
+                        onClick={handleResetAllData}
+                      >
+                        YES
+                      </button>
+                      <button
+                        className={styles.settings__resetCancelBtn}
+                        onClick={() => setShowResetConfirm(false)}
+                      >
+                        NO
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* App Info */}

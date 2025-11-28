@@ -60,7 +60,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
     });
     
     // Update tray
-    window.electronAPI?.updateTimer(get().getFormattedTime());
+    window.electronAPI?.updateTimer(get().getFormattedTime(), 'running');
   },
 
   pauseTimer: () => {
@@ -81,7 +81,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
       timeRemaining: getModeTime('work', config),
       currentTaskId: null,
     });
-    window.electronAPI?.updateTimer('');
+    window.electronAPI?.updateTimer('', 'idle');
   },
 
   skipToNext: () => {
@@ -112,7 +112,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
       currentTaskId: nextMode === 'work' ? null : get().currentTaskId,
     });
     
-    window.electronAPI?.updateTimer('');
+    window.electronAPI?.updateTimer('', 'idle');
   },
 
   tick: () => {
@@ -126,7 +126,7 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
     }
 
     set({ timeRemaining: timeRemaining - 1 });
-    window.electronAPI?.updateTimer(get().getFormattedTime());
+    window.electronAPI?.updateTimer(get().getFormattedTime(), 'running');
   },
 
   setWorkDuration: (minutes) => {

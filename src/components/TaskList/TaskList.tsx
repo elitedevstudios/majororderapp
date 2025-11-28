@@ -21,6 +21,7 @@ export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
   const deleteTask = useTaskStore((state) => state.deleteTask);
   const reorderTasks = useTaskStore((state) => state.reorderTasks);
   const areAllTasksComplete = useTaskStore((state) => state.areAllTasksComplete);
+  const getCompletedToday = useTaskStore((state) => state.getCompletedToday);
   
   const incrementTasksCompleted = useStreakStore((state) => state.incrementTasksCompleted);
   const checkAndUpdateStreak = useStreakStore((state) => state.checkAndUpdateStreak);
@@ -124,7 +125,7 @@ export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
 
   // Separate incomplete and completed tasks
   const incompleteTasks = sortedTasks.filter((t) => !t.completed);
-  const completedTasks = sortedTasks.filter((t) => t.completed);
+  const completedTodayTasks = getCompletedToday();
   
   // Show top 3 incomplete, or all if expanded
   const visibleIncompleteTasks = showAll 
@@ -148,7 +149,6 @@ export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
           <TaskItem
             key={task.id}
             task={task}
-            index={index}
             isDragging={draggedIndex === index}
             timeFeedback={getTimeFeedback(task)}
             onComplete={() => handleComplete(task)}
@@ -178,10 +178,10 @@ export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
         </button>
       )}
 
-      {completedTasks.length > 0 && (
+      {completedTodayTasks.length > 0 && (
         <div className={styles['task-list__completed']}>
           <span className={styles['task-list__completed-label']}>
-            ✓ {completedTasks.length} completed today
+            ✓ {completedTodayTasks.length} completed today
           </span>
         </div>
       )}

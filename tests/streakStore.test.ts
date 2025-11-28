@@ -242,6 +242,60 @@ describe('streakStore', () => {
     });
   });
 
+  describe('getStreakStatus', () => {
+    it('should show pending when completed yesterday but not today', () => {
+      mockDate('2024-01-15T12:00:00');
+      useStreakStore.setState({
+        currentStreak: 5,
+        lastCompletedDate: '2024-01-14', // Yesterday
+      });
+
+      const { getStreakStatus } = useStreakStore.getState();
+      const status = getStreakStatus();
+
+      expect(status.isPending).toBe(true);
+      expect(status.isActive).toBe(true);
+      expect(status.isCompletedToday).toBe(false);
+      expect(status.potentialStreak).toBe(6);
+
+      restoreDate();
+    });
+
+    it('should not be pending when completed today', () => {
+      mockDate('2024-01-15T12:00:00');
+      useStreakStore.setState({
+        currentStreak: 5,
+        lastCompletedDate: '2024-01-15', // Today
+      });
+
+      const { getStreakStatus } = useStreakStore.getState();
+      const status = getStreakStatus();
+
+      expect(status.isPending).toBe(false);
+      expect(status.isCompletedToday).toBe(true);
+      expect(status.potentialStreak).toBe(5);
+
+      restoreDate();
+    });
+
+    it('should show potential streak of 1 when streak is broken', () => {
+      mockDate('2024-01-17T12:00:00');
+      useStreakStore.setState({
+        currentStreak: 10,
+        lastCompletedDate: '2024-01-15', // 2 days ago
+      });
+
+      const { getStreakStatus } = useStreakStore.getState();
+      const status = getStreakStatus();
+
+      expect(status.isPending).toBe(false);
+      expect(status.isActive).toBe(false);
+      expect(status.potentialStreak).toBe(1);
+
+      restoreDate();
+    });
+  });
+
   describe('badge definitions', () => {
     it('should have all required badge properties', () => {
       const { badges } = useStreakStore.getState();

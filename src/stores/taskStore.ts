@@ -23,6 +23,7 @@ interface TaskState {
   // Queries
   getTodaysTasks: () => Task[];
   getIncompleteTasks: () => Task[];
+  getCompletedToday: () => Task[];
   areAllTasksComplete: () => boolean;
   
   // Persistence
@@ -203,6 +204,15 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 
   getIncompleteTasks: () => {
     return get().tasks.filter((task) => !task.completed);
+  },
+
+  getCompletedToday: () => {
+    const today = getToday();
+    return get().tasks.filter((task) => {
+      if (!task.completed || !task.completedAt) return false;
+      const completedDate = new Date(task.completedAt).toISOString().split('T')[0];
+      return completedDate === today;
+    });
   },
 
   areAllTasksComplete: () => {
