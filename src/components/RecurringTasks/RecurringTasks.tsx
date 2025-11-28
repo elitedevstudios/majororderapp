@@ -100,7 +100,6 @@ export function RecurringTasks(): JSX.Element {
                   <span className={styles.recurring__taskTitle}>{task.title}</span>
                   <span className={styles.recurring__meta}>
                     {getPriorityIcon(task.priority)} {task.frequency}
-                    {task.estimatedMinutes && ` • ~${task.estimatedMinutes}m`}
                   </span>
                 </div>
 
@@ -155,18 +154,6 @@ export function RecurringTasks(): JSX.Element {
                   </select>
                 </div>
 
-                <div className={styles.recurring__option}>
-                  <label>Est. time:</label>
-                  <input
-                    type="number"
-                    className={styles.recurring__timeInput}
-                    placeholder="min"
-                    min="1"
-                    max="480"
-                    value={estimatedMinutes}
-                    onChange={(e) => setEstimatedMinutes(e.target.value)}
-                  />
-                </div>
               </div>
 
               <div className={styles.recurring__actions}>
