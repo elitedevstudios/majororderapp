@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useStreakStore } from '../../stores/streakStore';
 import styles from './StreakDisplay.module.css';
 
@@ -6,6 +7,11 @@ export function StreakDisplay(): JSX.Element {
   const longestStreak = useStreakStore((state) => state.longestStreak);
   const totalTasksCompleted = useStreakStore((state) => state.totalTasksCompleted);
   const badges = useStreakStore((state) => state.badges);
+
+  // Update tray with current streak
+  useEffect(() => {
+    window.electronAPI?.updateStreak(currentStreak);
+  }, [currentStreak]);
 
   const unlockedBadges = badges.filter((b) => b.unlockedAt);
 

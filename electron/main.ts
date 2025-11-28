@@ -7,6 +7,9 @@ const store = new Store();
 let mainWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
 let isAlwaysOnTop = false;
+let currentTimerText = '';
+let currentStreak = 0;
+let timerStatus: 'idle' | 'running' | 'paused' = 'idle';
 
 const DIST = path.join(__dirname, '../dist');
 const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
@@ -64,11 +67,33 @@ function createTray(): void {
 function updateTrayMenu(timerText?: string): void {
   if (!tray) return;
   
-  const title = timerText || '⏱️';
+  if (timerText) currentTimerText = timerText;
+  
+  // Show timer in menu bar when running
+  const title = timerStatus === 'running' && currentTimerText 
+    ? currentTimerText 
+    : '⚔️';
   tray.setTitle(title);
+  
+  const streakLabel = currentStreak > 0 
+    ? `🔥 ${currentStreak} day streak` 
+    : '🔥 No streak';
+  
+  const timerLabel = timerStatus === 'running' 
+    ? `⏸ Pause Timer (${currentTimerText})`
+    : timerStatus === 'paused'
+    ? `▶ Resume Timer (${currentTimerText})`
+    : '▶ Start Timer';
   
   const contextMenu = Menu.buildFromTemplate([
     { label: 'Show Major Order', click: () => mainWindow?.show() },
+    { type: 'separator' },
+    { label: streakLabel, enabled: false },
+    { type: 'separator' },
+    { 
+      label: timerLabel, 
+      click: () => mainWindow?.webContents.send('tray:toggle-timer')
+    },
     { type: 'separator' },
     { 
       label: 'Always on Top', 
@@ -77,7 +102,7 @@ function updateTrayMenu(timerText?: string): void {
       click: () => toggleAlwaysOnTop()
     },
     { type: 'separator' },
-    { label: 'Quit', click: () => {
+    { label: 'Quit', accelerator: 'CmdOrCtrl+Q', click: () => {
       (app as any).isQuitting = true;
       app.quit();
     }}
@@ -97,8 +122,14 @@ ipcMain.handle('store:get', (_, key: string) => store.get(key));
 ipcMain.handle('store:set', (_, key: string, value: unknown) => store.set(key, value));
 ipcMain.handle('store:delete', (_, key: string) => store.delete(key));
 
-ipcMain.on('timer:update', (_, timeText: string) => {
-  updateTrayMenu(timeText);
+ipcMain.on('timer:update', (_, data: { time: string; status: 'idle' | 'running' | 'paused' }) => {
+  timerStatus = data.status;
+  updateTrayMenu(data.time);
+});
+
+ipcMain.on('streak:update', (_, streak: number) => {
+  currentStreak = streak;
+  updateTrayMenu();
 });
 
 ipcMain.on('toggle-always-on-top', () => {

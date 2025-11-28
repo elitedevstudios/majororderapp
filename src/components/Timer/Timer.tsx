@@ -33,6 +33,12 @@ export function Timer({ onBadgeUnlock }: TimerProps): JSX.Element {
   const updateTask = useTaskStore((state) => state.updateTask);
   const checkBadgeUnlock = useStreakStore((state) => state.checkBadgeUnlock);
 
+  const formatTime = (seconds: number): string => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
   // Timer tick effect
   useEffect(() => {
     if (status === 'running') {
@@ -52,6 +58,25 @@ export function Timer({ onBadgeUnlock }: TimerProps): JSX.Element {
       }
     };
   }, [status, tick]);
+
+  // Update tray with timer status
+  useEffect(() => {
+    const formattedTime = formatTime(timeRemaining);
+    window.electronAPI?.updateTimer(formattedTime, status);
+  }, [timeRemaining, status]);
+
+  // Listen for tray toggle timer event
+  useEffect(() => {
+    const cleanup = window.electronAPI?.onTrayToggleTimer(() => {
+      if (status === 'running') {
+        pauseTimer();
+      } else {
+        playSound('timerStart');
+        startTimer();
+      }
+    });
+    return cleanup;
+  }, [status, startTimer, pauseTimer]);
 
   // Handle timer completion
   useEffect(() => {
@@ -84,12 +109,6 @@ export function Timer({ onBadgeUnlock }: TimerProps): JSX.Element {
   const handleStartTimer = (taskId?: string): void => {
     playSound('timerStart');
     startTimer(taskId);
-  };
-
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
   const getModeLabel = (): string => {

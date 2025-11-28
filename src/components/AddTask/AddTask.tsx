@@ -1,9 +1,13 @@
-import { useState } from 'react';
+import { useState, type RefObject } from 'react';
 import { useTaskStore } from '../../stores/taskStore';
 import type { Priority } from '../../types';
 import styles from './AddTask.module.css';
 
-export function AddTask(): JSX.Element {
+interface AddTaskProps {
+  inputRef?: RefObject<HTMLInputElement>;
+}
+
+export function AddTask({ inputRef }: AddTaskProps): JSX.Element {
   const [title, setTitle] = useState('');
   const [priority, setPriority] = useState<Priority>('medium');
   const [estimatedMinutes, setEstimatedMinutes] = useState('');
@@ -32,6 +36,7 @@ export function AddTask(): JSX.Element {
     <form className={styles['add-task']} onSubmit={handleSubmit}>
       <div className={styles['add-task__main']}>
         <input
+          ref={inputRef}
           type="text"
           className={styles['add-task__input']}
           placeholder="+ Add new order..."

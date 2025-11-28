@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useTaskStore } from './stores/taskStore';
 import { useTimerStore } from './stores/timerStore';
 import { useStreakStore } from './stores/streakStore';
 import { useSettingsStore } from './stores/settingsStore';
 import { setSoundEnabled } from './utils/sound';
+import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { Header } from './components/Header/Header';
 import { Timer } from './components/Timer/Timer';
 import { TaskList } from './components/TaskList/TaskList';
@@ -16,6 +17,7 @@ import styles from './App.module.css';
 
 function App(): JSX.Element {
   const [unlockedBadge, setUnlockedBadge] = useState<Badge | null>(null);
+  const addTaskInputRef = useRef<HTMLInputElement>(null);
   const loadTasks = useTaskStore((state) => state.loadFromStorage);
   const loadTimer = useTimerStore((state) => state.loadConfig);
   const loadStreak = useStreakStore((state) => state.loadFromStorage);
@@ -34,6 +36,16 @@ function App(): JSX.Element {
   useEffect(() => {
     setSoundEnabled(soundEnabled);
   }, [soundEnabled]);
+
+  // Focus new task input
+  const focusNewTask = useCallback(() => {
+    addTaskInputRef.current?.focus();
+  }, []);
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    onNewTask: focusNewTask,
+  });
 
   const handleBadgeUnlock = (badge: Badge): void => {
     setUnlockedBadge(badge);
@@ -57,7 +69,7 @@ function App(): JSX.Element {
         </section>
 
         <section className={styles.section}>
-          <AddTask />
+          <AddTask inputRef={addTaskInputRef} />
         </section>
 
         <section className={styles['section--tasks']}>

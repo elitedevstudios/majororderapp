@@ -215,13 +215,25 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       const tasks = await window.electronAPI.store.get('tasks') as Task[] | undefined;
       const recurringTasks = await window.electronAPI.store.get('recurringTasks') as RecurringTask[] | undefined;
       
+      // Clean up old completed tasks (keep last 7 days)
+      const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      const cleanedTasks = (tasks || []).filter((task) => {
+        if (!task.completed) return true;
+        return (task.completedAt || task.createdAt) > sevenDaysAgo;
+      });
+      
       set({
-        tasks: tasks || [],
+        tasks: cleanedTasks,
         recurringTasks: recurringTasks || [],
       });
       
       // Generate recurring tasks for today
       get().generateRecurringTasks();
+      
+      // Save if we cleaned up any tasks
+      if (tasks && cleanedTasks.length !== tasks.length) {
+        get().saveToStorage();
+      }
     } catch (error) {
       console.error('Failed to load tasks from storage:', error);
     }

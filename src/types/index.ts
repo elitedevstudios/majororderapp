@@ -88,3 +88,23 @@ export type TimeFeedback = {
   message: string;
   difference: number;
 };
+
+// Electron API Types
+export interface ElectronAPI {
+  store: {
+    get: (key: string) => Promise<unknown>;
+    set: (key: string, value: unknown) => Promise<void>;
+    delete: (key: string) => Promise<void>;
+  };
+  updateTimer: (time: string, status: 'idle' | 'running' | 'paused') => void;
+  updateStreak: (streak: number) => void;
+  toggleAlwaysOnTop: () => void;
+  getAlwaysOnTop: () => Promise<boolean>;
+  onTrayToggleTimer: (callback: () => void) => () => void;
+}
+
+declare global {
+  interface Window {
+    electronAPI: ElectronAPI;
+  }
+}

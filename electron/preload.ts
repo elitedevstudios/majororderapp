@@ -9,11 +9,21 @@ contextBridge.exposeInMainWorld('electronAPI', {
   },
   
   // Timer updates for tray
-  updateTimer: (timeText: string) => ipcRenderer.send('timer:update', timeText),
+  updateTimer: (time: string, status: 'idle' | 'running' | 'paused') => 
+    ipcRenderer.send('timer:update', { time, status }),
+  
+  // Streak updates for tray
+  updateStreak: (streak: number) => ipcRenderer.send('streak:update', streak),
   
   // Window controls
   toggleAlwaysOnTop: () => ipcRenderer.send('toggle-always-on-top'),
   getAlwaysOnTop: () => ipcRenderer.invoke('get-always-on-top'),
+  
+  // Listen for tray events
+  onTrayToggleTimer: (callback: () => void) => {
+    ipcRenderer.on('tray:toggle-timer', callback);
+    return () => ipcRenderer.removeListener('tray:toggle-timer', callback);
+  },
 });
 
 // Type declarations for renderer
@@ -25,9 +35,11 @@ declare global {
         set: (key: string, value: unknown) => Promise<void>;
         delete: (key: string) => Promise<void>;
       };
-      updateTimer: (timeText: string) => void;
+      updateTimer: (time: string, status: 'idle' | 'running' | 'paused') => void;
+      updateStreak: (streak: number) => void;
       toggleAlwaysOnTop: () => void;
       getAlwaysOnTop: () => Promise<boolean>;
+      onTrayToggleTimer: (callback: () => void) => () => void;
     };
   }
 }
