@@ -71,6 +71,22 @@
 .task-item--completed {
   opacity: 0.6;
   cursor: default;
+  animation: taskComplete 0.4s ease-out;
+}
+
+@keyframes taskComplete {
+  0% {
+    transform: scale(1);
+    background-color: var(--color-bg-mid);
+  }
+  30% {
+    transform: scale(1.02);
+    background-color: var(--color-green);
+  }
+  100% {
+    transform: scale(1);
+    background-color: var(--color-bg-mid);
+  }
 }
 
 .task-item--completed .task-item__title {

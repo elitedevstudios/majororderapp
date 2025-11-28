@@ -29,8 +29,27 @@
 
 .streak__icon--active {
   opacity: 1;
-  filter: grayscale(0);
-  animation: flicker 1s ease-in-out infinite;
+  filter: grayscale(0) drop-shadow(0 0 4px var(--color-orange));
+  animation: fireGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes fireGlow {
+  0%, 100% {
+    transform: scale(1);
+    filter: grayscale(0) drop-shadow(0 0 4px var(--color-orange));
+  }
+  25% {
+    transform: scale(1.05) rotate(-3deg);
+    filter: grayscale(0) drop-shadow(0 0 8px var(--color-red));
+  }
+  50% {
+    transform: scale(1.1);
+    filter: grayscale(0) drop-shadow(0 0 12px var(--color-yellow));
+  }
+  75% {
+    transform: scale(1.05) rotate(3deg);
+    filter: grayscale(0) drop-shadow(0 0 8px var(--color-orange));
+  }
 }
 
 .streak__count {

@@ -35,8 +35,19 @@
 }
 
 .timer__time--urgent {
-  animation: timerPulse 1s ease-in-out infinite;
+  animation: timerUrgent 0.5s ease-in-out infinite;
   color: var(--color-red);
+}
+
+@keyframes timerUrgent {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
 }
 
 .timer__progress {
@@ -87,6 +98,10 @@
   background-color: var(--color-green);
   border-color: var(--color-green);
   color: var(--color-bg-dark);
+}
+
+.timer__button--primary:hover {
+  box-shadow: 0 0 12px var(--color-green);
 }
 
 .timer__button--secondary {
