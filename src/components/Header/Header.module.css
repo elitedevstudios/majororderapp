@@ -26,6 +26,13 @@
   color: var(--color-text-primary);
 }
 
+.header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  -webkit-app-region: no-drag;
+}
+
 .header__pin {
   -webkit-app-region: no-drag;
   padding: var(--space-xs);

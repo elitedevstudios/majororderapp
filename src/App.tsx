@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useTaskStore } from './stores/taskStore';
 import { useTimerStore } from './stores/timerStore';
 import { useStreakStore } from './stores/streakStore';
+import { useSettingsStore } from './stores/settingsStore';
+import { setSoundEnabled } from './utils/sound';
 import { Header } from './components/Header/Header';
 import { Timer } from './components/Timer/Timer';
 import { TaskList } from './components/TaskList/TaskList';
@@ -17,14 +19,21 @@ function App(): JSX.Element {
   const loadTasks = useTaskStore((state) => state.loadFromStorage);
   const loadTimer = useTimerStore((state) => state.loadConfig);
   const loadStreak = useStreakStore((state) => state.loadFromStorage);
+  const loadSettings = useSettingsStore((state) => state.loadFromStorage);
+  const soundEnabled = useSettingsStore((state) => state.soundEnabled);
 
   useEffect(() => {
     // Load all data from storage on mount
     const initializeApp = async (): Promise<void> => {
-      await Promise.all([loadTasks(), loadTimer(), loadStreak()]);
+      await Promise.all([loadTasks(), loadTimer(), loadStreak(), loadSettings()]);
     };
     initializeApp();
-  }, [loadTasks, loadTimer, loadStreak]);
+  }, [loadTasks, loadTimer, loadStreak, loadSettings]);
+
+  // Sync sound setting
+  useEffect(() => {
+    setSoundEnabled(soundEnabled);
+  }, [soundEnabled]);
 
   const handleBadgeUnlock = (badge: Badge): void => {
     setUnlockedBadge(badge);
