@@ -44,7 +44,10 @@ export function TaskItem({
 }: TaskItemProps): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(task.title);
+  const [showNotes, setShowNotes] = useState(false);
+  const [editNotes, setEditNotes] = useState(task.notes || '');
   const inputRef = useRef<HTMLInputElement>(null);
+  const notesRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -70,6 +73,31 @@ export function TaskItem({
       setEditTitle(task.title);
     }
   };
+
+  const handleSaveNotes = (): void => {
+    const trimmed = editNotes.trim();
+    if (trimmed !== (task.notes || '')) {
+      onUpdate({ notes: trimmed || undefined });
+    }
+    setShowNotes(false);
+  };
+
+  const handleNotesKeyDown = (e: React.KeyboardEvent): void => {
+    if (e.key === 'Escape') {
+      setShowNotes(false);
+      setEditNotes(task.notes || '');
+    }
+    // Allow Enter for newlines, Cmd/Ctrl+Enter to save
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      handleSaveNotes();
+    }
+  };
+
+  useEffect(() => {
+    if (showNotes && notesRef.current) {
+      notesRef.current.focus();
+    }
+  }, [showNotes]);
 
   const cyclePriority = (): void => {
     const priorities: Priority[] = ['low', 'medium', 'high'];
@@ -184,6 +212,43 @@ export function TaskItem({
         {timeFeedback && (
           <div className={styles['task-item__feedback']}>
             {timeFeedback}
+          </div>
+        )}
+
+        {/* Notes indicator/toggle */}
+        {!task.completed && (
+          <button
+            className={`${styles['task-item__notes-btn']} ${task.notes ? styles['task-item__notes-btn--has-notes'] : ''}`}
+            onClick={() => setShowNotes(!showNotes)}
+            title={task.notes ? 'View/edit notes' : 'Add notes'}
+          >
+            📝
+          </button>
+        )}
+
+        {/* Notes display/edit */}
+        {showNotes && (
+          <div className={styles['task-item__notes']}>
+            <textarea
+              ref={notesRef}
+              className={styles['task-item__notes-input']}
+              value={editNotes}
+              onChange={(e) => setEditNotes(e.target.value)}
+              onBlur={handleSaveNotes}
+              onKeyDown={handleNotesKeyDown}
+              placeholder="Add notes... (Cmd+Enter to save)"
+              rows={3}
+            />
+          </div>
+        )}
+
+        {/* Show notes preview when collapsed */}
+        {!showNotes && task.notes && (
+          <div 
+            className={styles['task-item__notes-preview']}
+            onClick={() => !task.completed && setShowNotes(true)}
+          >
+            {task.notes.length > 50 ? `${task.notes.slice(0, 50)}...` : task.notes}
           </div>
         )}
       </div>

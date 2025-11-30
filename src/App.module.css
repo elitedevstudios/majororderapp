@@ -25,3 +25,74 @@
   display: flex;
   flex-direction: column;
 }
+
+/* Analytics Button */
+.analyticsBtn {
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-xs);
+  font-family: inherit;
+  color: var(--color-text-secondary);
+  background-color: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  letter-spacing: 1px;
+}
+
+.analyticsBtn:hover {
+  color: var(--color-cyan);
+  border-color: var(--color-cyan);
+}
+
+/* Undo Toast */
+.undoToast {
+  position: fixed;
+  inset-block-end: var(--space-lg);
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--color-bg-mid);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.2s ease-out;
+  z-index: 100;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.undoToast span {
+  font-size: var(--font-xs);
+  color: var(--color-text-secondary);
+}
+
+.undoToast button {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-xs);
+  font-family: inherit;
+  font-weight: bold;
+  color: var(--color-cyan);
+  background: transparent;
+  border: 1px solid var(--color-cyan);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.undoToast button:hover {
+  background-color: var(--color-cyan);
+  color: var(--color-bg-dark);
+}

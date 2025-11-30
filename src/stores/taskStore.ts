@@ -1,6 +1,10 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
+import { debounce } from '../utils/debounce';
 import type { Task, RecurringTask, Priority, DayStats, PriorityBreakdown } from '../types';
+
+// Debounced save function (300ms delay)
+let debouncedSave: (() => void) | null = null;
 
 interface TaskState {
   tasks: Task[];
@@ -31,6 +35,7 @@ interface TaskState {
   // Persistence
   loadFromStorage: () => Promise<void>;
   saveToStorage: () => Promise<void>;
+  saveToStorageDebounced: () => void;
 }
 
 const getToday = (): string => new Date().toISOString().split('T')[0];
@@ -309,5 +314,15 @@ export const useTaskStore = create<TaskState>((set, get) => ({
     } catch (error) {
       console.error('Failed to save tasks to storage:', error);
     }
+  },
+
+  // Debounced version for frequent updates
+  saveToStorageDebounced: () => {
+    if (!debouncedSave) {
+      debouncedSave = debounce(() => {
+        get().saveToStorage();
+      }, 300);
+    }
+    debouncedSave();
   },
 }));

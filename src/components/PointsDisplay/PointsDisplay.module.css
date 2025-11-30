@@ -49,8 +49,46 @@
   background-color: var(--color-border);
 }
 
-.points-display__hint {
+.points-display__value--goal {
+  color: var(--color-green);
+}
+
+/* Goal progress */
+.points-display__goal {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-block-start: var(--space-sm);
+  border-block-start: 1px solid var(--color-border);
+}
+
+.points-display__goal-header {
+  display: flex;
+  justify-content: space-between;
   font-size: var(--font-xs);
-  color: var(--color-text-disabled);
+  color: var(--color-text-secondary);
+}
+
+.points-display__goal-bar {
+  block-size: 6px;
+  background-color: var(--color-bg-dark);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.points-display__goal-fill {
+  block-size: 100%;
+  background-color: var(--color-cyan);
+  border-radius: 3px;
+  transition: inline-size 0.3s ease;
+}
+
+.points-display__goal-fill--complete {
+  background-color: var(--color-green);
+}
+
+.points-display__goal-complete {
+  font-size: var(--font-xs);
+  color: var(--color-green);
   text-align: center;
 }

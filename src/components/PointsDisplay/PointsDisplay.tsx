@@ -1,10 +1,15 @@
 import { useStopwatchStore } from '../../stores/timerStore';
+import { useSettingsStore } from '../../stores/settingsStore';
 import styles from './PointsDisplay.module.css';
 
 export function PointsDisplay(): JSX.Element {
   const totalPoints = useStopwatchStore((state) => state.totalPoints);
   const dailyPoints = useStopwatchStore((state) => state.dailyPoints);
   const tasksUnderEstimate = useStopwatchStore((state) => state.tasksUnderEstimate);
+  const dailyGoal = useSettingsStore((state) => state.dailyPointGoal);
+
+  const dailyProgress = Math.min((dailyPoints / dailyGoal) * 100, 100);
+  const goalReached = dailyPoints >= dailyGoal;
 
   return (
     <div className={styles['points-display']}>
@@ -21,7 +26,9 @@ export function PointsDisplay(): JSX.Element {
         <div className={styles['points-display__divider']} />
         
         <div className={styles['points-display__stat']}>
-          <span className={styles['points-display__value']}>{dailyPoints}</span>
+          <span className={`${styles['points-display__value']} ${goalReached ? styles['points-display__value--goal'] : ''}`}>
+            {dailyPoints}
+          </span>
           <span className={styles['points-display__stat-label']}>Today</span>
         </div>
         
@@ -33,8 +40,21 @@ export function PointsDisplay(): JSX.Element {
         </div>
       </div>
 
-      <div className={styles['points-display__hint']}>
-        Complete tasks under estimated time for bonus points!
+      {/* Daily goal progress bar */}
+      <div className={styles['points-display__goal']}>
+        <div className={styles['points-display__goal-header']}>
+          <span>Daily Goal</span>
+          <span>{dailyPoints}/{dailyGoal} pts</span>
+        </div>
+        <div className={styles['points-display__goal-bar']}>
+          <div 
+            className={`${styles['points-display__goal-fill']} ${goalReached ? styles['points-display__goal-fill--complete'] : ''}`}
+            style={{ inlineSize: `${dailyProgress}%` }}
+          />
+        </div>
+        {goalReached && (
+          <span className={styles['points-display__goal-complete']}>🎯 Goal reached!</span>
+        )}
       </div>
     </div>
   );
