@@ -28,7 +28,8 @@ interface StreakStatus {
 interface BadgeContext {
   tasksCompleted?: number;
   currentStreak?: number;
-  dailyPomodoros?: number;
+  dailyPoints?: number;
+  tasksUnderEstimate?: number;
   completedUnderEstimate?: boolean;
 }
 
@@ -69,11 +70,18 @@ const BADGE_DEFINITIONS: Badge[] = [
     condition: '100 tasks completed',
   },
   {
-    id: 'time-lord',
-    name: 'Time Lord',
-    description: '10 pomodoros in one day',
+    id: 'speed-demon',
+    name: 'Speed Demon',
+    description: 'Complete 5 tasks under estimated time',
+    icon: '💨',
+    condition: '5 speed bonuses',
+  },
+  {
+    id: 'time-master',
+    name: 'Time Master',
+    description: 'Earn 1000 total points',
     icon: '⏱️',
-    condition: '10 daily pomodoros',
+    condition: '1000 points',
   },
   {
     id: 'sniper',
@@ -162,8 +170,11 @@ export const useStreakStore = create<StreakStoreState>((set, get) => ({
         case 'centurion':
           shouldUnlock = (context.tasksCompleted ?? 0) >= 100;
           break;
-        case 'time-lord':
-          shouldUnlock = (context.dailyPomodoros ?? 0) >= 10;
+        case 'speed-demon':
+          shouldUnlock = (context.tasksUnderEstimate ?? 0) >= 5;
+          break;
+        case 'time-master':
+          shouldUnlock = (context.dailyPoints ?? 0) >= 1000;
           break;
         case 'sniper':
           shouldUnlock = context.completedUnderEstimate === true;

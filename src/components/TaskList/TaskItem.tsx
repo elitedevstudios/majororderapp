@@ -2,13 +2,27 @@ import { useState, useRef, useEffect } from 'react';
 import type { Task, Priority } from '../../types';
 import styles from './TaskList.module.css';
 
+function formatElapsed(seconds: number): string {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+  
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
+  return `${minutes}:${secs.toString().padStart(2, '0')}`;
+}
+
 interface TaskItemProps {
   task: Task;
   isDragging: boolean;
+  isActive: boolean;
+  elapsedTime: string;
   timeFeedback: string | null;
   onComplete: () => void;
   onDelete: () => void;
   onUpdate: (updates: Partial<Task>) => void;
+  onStartStop: () => void;
   onDragStart: () => void;
   onDragOver: (e: React.DragEvent) => void;
   onDragEnd: () => void;
@@ -17,10 +31,13 @@ interface TaskItemProps {
 export function TaskItem({
   task,
   isDragging,
+  isActive,
+  elapsedTime,
   timeFeedback,
   onComplete,
   onDelete,
   onUpdate,
+  onStartStop,
   onDragStart,
   onDragOver,
   onDragEnd,
@@ -84,12 +101,24 @@ export function TaskItem({
 
   return (
     <li
-      className={`${styles['task-item']} ${getPriorityClass()} ${task.completed ? styles['task-item--completed'] : ''} ${isDragging ? styles['task-item--dragging'] : ''}`}
-      draggable={!task.completed}
+      className={`${styles['task-item']} ${getPriorityClass()} ${task.completed ? styles['task-item--completed'] : ''} ${isDragging ? styles['task-item--dragging'] : ''} ${isActive ? styles['task-item--active'] : ''}`}
+      draggable={!task.completed && !isActive}
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDragEnd={onDragEnd}
     >
+      {/* Start/Stop button for incomplete tasks */}
+      {!task.completed && (
+        <button
+          className={`${styles['task-item__stopwatch']} ${isActive ? styles['task-item__stopwatch--active'] : ''}`}
+          onClick={onStartStop}
+          aria-label={isActive ? 'Stop tracking' : 'Start tracking'}
+        >
+          {isActive ? '⏹' : '▶'}
+        </button>
+      )}
+      
+      {/* Checkbox for completing */}
       <button
         className={styles['task-item__checkbox']}
         onClick={onComplete}
@@ -136,9 +165,17 @@ export function TaskItem({
             </span>
           )}
           
-          {task.pomodorosSpent > 0 && (
-            <span className={styles['task-item__pomodoros']}>
-              🍅 {task.pomodorosSpent}
+          {/* Show elapsed time when active or if task has tracked time */}
+          {(isActive || task.elapsedSeconds > 0) && (
+            <span className={`${styles['task-item__elapsed']} ${isActive ? styles['task-item__elapsed--active'] : ''}`}>
+              {isActive ? elapsedTime : formatElapsed(task.elapsedSeconds)}
+            </span>
+          )}
+          
+          {/* Show points earned for completed tasks */}
+          {task.completed && task.pointsEarned > 0 && (
+            <span className={styles['task-item__points']}>
+              +{task.pointsEarned} pts
             </span>
           )}
         </div>

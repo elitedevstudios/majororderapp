@@ -1,12 +1,12 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useTaskStore } from './stores/taskStore';
-import { useTimerStore } from './stores/timerStore';
+import { useStopwatchStore } from './stores/timerStore';
 import { useStreakStore } from './stores/streakStore';
 import { useSettingsStore } from './stores/settingsStore';
 import { setSoundEnabled } from './utils/sound';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { Header } from './components/Header/Header';
-import { Timer } from './components/Timer/Timer';
+import { PointsDisplay } from './components/PointsDisplay/PointsDisplay';
 import { TaskList } from './components/TaskList/TaskList';
 import { AddTask } from './components/AddTask/AddTask';
 import { StreakDisplay } from './components/Streak/StreakDisplay';
@@ -27,8 +27,7 @@ function App(): JSX.Element {
   const loadTasks = useTaskStore((state) => state.loadFromStorage);
   const areAllTasksComplete = useTaskStore((state) => state.areAllTasksComplete);
   const tasks = useTaskStore((state) => state.tasks);
-  const loadTimerConfig = useTimerStore((state) => state.loadConfig);
-  const loadDailyPomodoros = useTimerStore((state) => state.loadDailyPomodoros);
+  const loadStopwatchData = useStopwatchStore((state) => state.loadFromStorage);
   const loadStreak = useStreakStore((state) => state.loadFromStorage);
   const loadSettings = useSettingsStore((state) => state.loadFromStorage);
   const soundEnabled = useSettingsStore((state) => state.soundEnabled);
@@ -36,10 +35,10 @@ function App(): JSX.Element {
   useEffect(() => {
     // Load all data from storage on mount
     const initializeApp = async (): Promise<void> => {
-      await Promise.all([loadTasks(), loadTimerConfig(), loadDailyPomodoros(), loadStreak(), loadSettings()]);
+      await Promise.all([loadTasks(), loadStopwatchData(), loadStreak(), loadSettings()]);
     };
     initializeApp();
-  }, [loadTasks, loadTimerConfig, loadDailyPomodoros, loadStreak, loadSettings]);
+  }, [loadTasks, loadStopwatchData, loadStreak, loadSettings]);
 
   // Sync sound setting
   useEffect(() => {
@@ -90,7 +89,7 @@ function App(): JSX.Element {
         </section>
 
         <section className={styles.section}>
-          <Timer onBadgeUnlock={handleBadgeUnlock} />
+          <PointsDisplay />
         </section>
 
         <section className={styles.section}>

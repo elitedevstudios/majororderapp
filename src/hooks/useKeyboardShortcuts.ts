@@ -1,6 +1,4 @@
 import { useEffect, useCallback } from 'react';
-import { useTimerStore } from '../stores/timerStore';
-import { playSound } from '../utils/sound';
 
 interface KeyboardShortcutsOptions {
   onNewTask?: () => void;
@@ -10,29 +8,8 @@ interface KeyboardShortcutsOptions {
 
 export function useKeyboardShortcuts(options: KeyboardShortcutsOptions = {}): void {
   const { onNewTask, onCloseModal, onToggleFocus } = options;
-  
-  const status = useTimerStore((state) => state.status);
-  const startTimer = useTimerStore((state) => state.startTimer);
-  const pauseTimer = useTimerStore((state) => state.pauseTimer);
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
-    const target = event.target as HTMLElement;
-    const isInputFocused = target.tagName === 'INPUT' || 
-                           target.tagName === 'TEXTAREA' || 
-                           target.tagName === 'SELECT';
-
-    // Space - Toggle timer (only when not typing)
-    if (event.code === 'Space' && !isInputFocused) {
-      event.preventDefault();
-      if (status === 'running') {
-        pauseTimer();
-      } else {
-        playSound('timerStart');
-        startTimer();
-      }
-      return;
-    }
-
     // Cmd/Ctrl + N - New task
     if ((event.metaKey || event.ctrlKey) && event.key === 'n') {
       event.preventDefault();
@@ -59,7 +36,7 @@ export function useKeyboardShortcuts(options: KeyboardShortcutsOptions = {}): vo
       onCloseModal?.();
       return;
     }
-  }, [status, startTimer, pauseTimer, onNewTask, onCloseModal, onToggleFocus]);
+  }, [onNewTask, onCloseModal, onToggleFocus]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);

@@ -8,7 +8,8 @@ export interface Task {
   completedAt?: number;
   estimatedMinutes?: number;
   actualMinutes?: number;
-  pomodorosSpent: number;
+  elapsedSeconds: number; // Total time tracked via stopwatch
+  pointsEarned: number; // Points earned for this task
   createdAt: number;
   isRecurring: boolean;
   recurringTemplateId?: string;
@@ -28,24 +29,25 @@ export interface RecurringTask {
   isActive: boolean;
 }
 
-// Timer Types
-export type TimerMode = 'work' | 'shortBreak' | 'longBreak';
-export type TimerStatus = 'idle' | 'running' | 'paused';
+// Stopwatch Types
+export type StopwatchStatus = 'idle' | 'running' | 'paused';
 
-export interface TimerState {
-  mode: TimerMode;
-  status: TimerStatus;
-  timeRemaining: number; // in seconds
-  currentTaskId: string | null;
-  pomodorosCompleted: number;
-  dailyPomodorosCompleted: number;
+export interface StopwatchState {
+  status: StopwatchStatus;
+  activeTaskId: string | null;
+  elapsedSeconds: number; // Current session elapsed time
+  startedAt: number | null; // Timestamp when started
 }
 
-export interface TimerConfig {
-  workMinutes: number;
-  shortBreakMinutes: number;
-  longBreakMinutes: number;
-  longBreakInterval: number;
+// Points System
+export interface PointsConfig {
+  basePoints: number; // Points for completing any task
+  earlyBonus: number; // Multiplier for finishing under estimate
+  priorityMultiplier: {
+    high: number;
+    medium: number;
+    low: number;
+  };
 }
 
 // Streak Types
@@ -72,12 +74,12 @@ export type BadgeId =
   | 'unstoppable'
   | 'legend'
   | 'centurion'
-  | 'time-lord'
+  | 'speed-demon' // Complete 5 tasks under estimated time
+  | 'time-master' // Earn 1000 total points
   | 'sniper';
 
 // Settings Types
 export interface Settings {
-  workMinutes: number;
   soundEnabled: boolean;
   notificationsEnabled: boolean;
 }

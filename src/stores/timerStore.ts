@@ -1,210 +1,194 @@
 import { create } from 'zustand';
-import type { TimerState, TimerMode, TimerConfig } from '../types';
+import type { StopwatchState, PointsConfig, Priority } from '../types';
 
-interface TimerStoreState extends TimerState {
-  config: TimerConfig;
+interface StopwatchStoreState extends StopwatchState {
+  totalPoints: number;
+  dailyPoints: number;
+  tasksUnderEstimate: number; // Track for badge
   
   // Actions
-  startTimer: (taskId?: string) => void;
-  pauseTimer: () => void;
-  resumeTimer: () => void;
-  stopTimer: () => void;
-  skipToNext: () => void;
+  startStopwatch: (taskId: string) => void;
+  pauseStopwatch: () => void;
+  resumeStopwatch: () => void;
+  stopStopwatch: () => { elapsedSeconds: number };
   tick: () => void;
-  setWorkDuration: (minutes: number) => void;
+  
+  // Points
+  calculatePoints: (estimatedMinutes: number | undefined, actualSeconds: number, priority: Priority) => number;
+  addPoints: (points: number, wasUnderEstimate: boolean) => void;
   
   // Queries
   getFormattedTime: () => string;
-  getProgress: () => number;
+  getActiveTaskId: () => string | null;
+  isTaskActive: (taskId: string) => boolean;
   
   // Persistence
-  loadConfig: () => Promise<void>;
-  saveConfig: () => Promise<void>;
-  loadDailyPomodoros: () => Promise<void>;
-  saveDailyPomodoros: () => Promise<void>;
+  loadFromStorage: () => Promise<void>;
+  saveToStorage: () => Promise<void>;
 }
 
-const DEFAULT_CONFIG: TimerConfig = {
-  workMinutes: 25,
-  shortBreakMinutes: 5,
-  longBreakMinutes: 15,
-  longBreakInterval: 4,
+const DEFAULT_POINTS_CONFIG: PointsConfig = {
+  basePoints: 10,
+  earlyBonus: 2.0, // 2x multiplier for finishing early
+  priorityMultiplier: {
+    high: 3,
+    medium: 2,
+    low: 1,
+  },
 };
 
-const getModeTime = (mode: TimerMode, config: TimerConfig): number => {
-  switch (mode) {
-    case 'work':
-      return config.workMinutes * 60;
-    case 'shortBreak':
-      return config.shortBreakMinutes * 60;
-    case 'longBreak':
-      return config.longBreakMinutes * 60;
-  }
-};
-
-export const useTimerStore = create<TimerStoreState>((set, get) => ({
-  mode: 'work',
+export const useStopwatchStore = create<StopwatchStoreState>((set, get) => ({
   status: 'idle',
-  timeRemaining: DEFAULT_CONFIG.workMinutes * 60,
-  currentTaskId: null,
-  pomodorosCompleted: 0,
-  dailyPomodorosCompleted: 0,
-  config: DEFAULT_CONFIG,
+  activeTaskId: null,
+  elapsedSeconds: 0,
+  startedAt: null,
+  totalPoints: 0,
+  dailyPoints: 0,
+  tasksUnderEstimate: 0,
 
-  startTimer: (taskId) => {
-    const { mode, config, status } = get();
-    if (status === 'running') return;
+  startStopwatch: (taskId: string) => {
+    const { status, activeTaskId } = get();
+    
+    // If already running on same task, do nothing
+    if (status === 'running' && activeTaskId === taskId) return;
+    
+    // If running on different task, stop first (shouldn't happen with UI)
+    if (status === 'running' && activeTaskId !== taskId) {
+      get().stopStopwatch();
+    }
     
     set({
       status: 'running',
-      currentTaskId: taskId || get().currentTaskId,
-      timeRemaining: status === 'paused' ? get().timeRemaining : getModeTime(mode, config),
+      activeTaskId: taskId,
+      elapsedSeconds: 0,
+      startedAt: Date.now(),
     });
     
-    // Update tray
     window.electronAPI?.updateTimer(get().getFormattedTime(), 'running');
   },
 
-  pauseTimer: () => {
+  pauseStopwatch: () => {
     if (get().status !== 'running') return;
     set({ status: 'paused' });
+    window.electronAPI?.updateTimer(get().getFormattedTime(), 'paused');
   },
 
-  resumeTimer: () => {
+  resumeStopwatch: () => {
     if (get().status !== 'paused') return;
-    set({ status: 'running' });
+    set({ 
+      status: 'running',
+      startedAt: Date.now() - (get().elapsedSeconds * 1000),
+    });
+    window.electronAPI?.updateTimer(get().getFormattedTime(), 'running');
   },
 
-  stopTimer: () => {
-    const { config } = get();
+  stopStopwatch: () => {
+    const elapsed = get().elapsedSeconds;
     set({
       status: 'idle',
-      mode: 'work',
-      timeRemaining: getModeTime('work', config),
-      currentTaskId: null,
+      activeTaskId: null,
+      elapsedSeconds: 0,
+      startedAt: null,
     });
     window.electronAPI?.updateTimer('', 'idle');
-  },
-
-  skipToNext: () => {
-    const { mode, pomodorosCompleted, config } = get();
-    let nextMode: TimerMode;
-    let newPomodorosCompleted = pomodorosCompleted;
-    let newDailyPomodoros = get().dailyPomodorosCompleted;
-
-    if (mode === 'work') {
-      newPomodorosCompleted++;
-      newDailyPomodoros++;
-      if (newPomodorosCompleted % config.longBreakInterval === 0) {
-        nextMode = 'longBreak';
-      } else {
-        nextMode = 'shortBreak';
-      }
-    } else {
-      nextMode = 'work';
-    }
-
-    set({
-      mode: nextMode,
-      status: 'idle',
-      timeRemaining: getModeTime(nextMode, config),
-      pomodorosCompleted: newPomodorosCompleted,
-      dailyPomodorosCompleted: newDailyPomodoros,
-      currentTaskId: nextMode === 'work' ? null : get().currentTaskId,
-    });
-    
-    // Persist daily pomodoros when work session completes
-    if (mode === 'work') {
-      get().saveDailyPomodoros();
-    }
-    
-    window.electronAPI?.updateTimer('', 'idle');
+    return { elapsedSeconds: elapsed };
   },
 
   tick: () => {
-    const { status, timeRemaining } = get();
-    if (status !== 'running') return;
-
-    if (timeRemaining <= 1) {
-      // Timer complete - will be handled by component
-      set({ timeRemaining: 0, status: 'idle' });
-      return;
-    }
-
-    set({ timeRemaining: timeRemaining - 1 });
+    const { status, startedAt } = get();
+    if (status !== 'running' || !startedAt) return;
+    
+    const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+    set({ elapsedSeconds: elapsed });
     window.electronAPI?.updateTimer(get().getFormattedTime(), 'running');
   },
 
-  setWorkDuration: (minutes) => {
-    const newConfig = { ...get().config, workMinutes: minutes };
-    set({ 
-      config: newConfig,
-      timeRemaining: get().mode === 'work' && get().status === 'idle' 
-        ? minutes * 60 
-        : get().timeRemaining,
+  calculatePoints: (estimatedMinutes, actualSeconds, priority) => {
+    const config = DEFAULT_POINTS_CONFIG;
+    let points = config.basePoints;
+    
+    // Apply priority multiplier
+    points *= config.priorityMultiplier[priority];
+    
+    // Apply early completion bonus
+    if (estimatedMinutes) {
+      const estimatedSeconds = estimatedMinutes * 60;
+      if (actualSeconds < estimatedSeconds) {
+        // Bonus scales with how much time was saved (up to 2x)
+        const timeRatio = actualSeconds / estimatedSeconds;
+        const bonusMultiplier = 1 + ((1 - timeRatio) * config.earlyBonus);
+        points *= bonusMultiplier;
+      }
+    }
+    
+    return Math.round(points);
+  },
+
+  addPoints: (points, wasUnderEstimate) => {
+    const { totalPoints, dailyPoints, tasksUnderEstimate } = get();
+    set({
+      totalPoints: totalPoints + points,
+      dailyPoints: dailyPoints + points,
+      tasksUnderEstimate: wasUnderEstimate ? tasksUnderEstimate + 1 : tasksUnderEstimate,
     });
-    get().saveConfig();
+    get().saveToStorage();
   },
 
   getFormattedTime: () => {
-    const { timeRemaining, mode } = get();
-    const minutes = Math.floor(timeRemaining / 60);
-    const seconds = timeRemaining % 60;
-    const icon = mode === 'work' ? '🍅' : '☕';
-    return `${icon} ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    const { elapsedSeconds } = get();
+    const hours = Math.floor(elapsedSeconds / 3600);
+    const minutes = Math.floor((elapsedSeconds % 3600) / 60);
+    const seconds = elapsedSeconds % 60;
+    
+    if (hours > 0) {
+      return `⏱️ ${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
+    return `⏱️ ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   },
 
-  getProgress: () => {
-    const { timeRemaining, mode, config } = get();
-    const totalTime = getModeTime(mode, config);
-    return ((totalTime - timeRemaining) / totalTime) * 100;
+  getActiveTaskId: () => get().activeTaskId,
+
+  isTaskActive: (taskId: string) => {
+    return get().activeTaskId === taskId && get().status === 'running';
   },
 
-  loadConfig: async () => {
+  loadFromStorage: async () => {
     try {
-      const config = await window.electronAPI.store.get('timerConfig') as TimerConfig | undefined;
-      if (config) {
-        set({ 
-          config,
-          timeRemaining: getModeTime('work', config),
+      const data = await window.electronAPI.store.get('stopwatchData') as {
+        totalPoints: number;
+        dailyPoints: number;
+        dailyDate: string;
+        tasksUnderEstimate: number;
+      } | undefined;
+      
+      const today = new Date().toISOString().split('T')[0];
+      
+      if (data) {
+        set({
+          totalPoints: data.totalPoints || 0,
+          dailyPoints: data.dailyDate === today ? data.dailyPoints : 0,
+          tasksUnderEstimate: data.tasksUnderEstimate || 0,
         });
       }
     } catch (error) {
-      console.error('Failed to load timer config:', error);
+      console.error('Failed to load stopwatch data:', error);
     }
   },
 
-  saveConfig: async () => {
-    try {
-      await window.electronAPI.store.set('timerConfig', get().config);
-    } catch (error) {
-      console.error('Failed to save timer config:', error);
-    }
-  },
-
-  loadDailyPomodoros: async () => {
-    try {
-      const data = await window.electronAPI.store.get('dailyPomodoros') as { date: string; count: number } | undefined;
-      const today = new Date().toISOString().split('T')[0];
-      if (data && data.date === today) {
-        set({ dailyPomodorosCompleted: data.count });
-      } else {
-        set({ dailyPomodorosCompleted: 0 });
-      }
-    } catch (error) {
-      console.error('Failed to load daily pomodoros:', error);
-    }
-  },
-
-  saveDailyPomodoros: async () => {
+  saveToStorage: async () => {
     try {
       const today = new Date().toISOString().split('T')[0];
-      await window.electronAPI.store.set('dailyPomodoros', {
-        date: today,
-        count: get().dailyPomodorosCompleted,
+      await window.electronAPI.store.set('stopwatchData', {
+        totalPoints: get().totalPoints,
+        dailyPoints: get().dailyPoints,
+        dailyDate: today,
+        tasksUnderEstimate: get().tasksUnderEstimate,
       });
     } catch (error) {
-      console.error('Failed to save daily pomodoros:', error);
+      console.error('Failed to save stopwatch data:', error);
     }
   },
 }));
+
+// Keep old export name for compatibility during transition
+export const useTimerStore = useStopwatchStore;

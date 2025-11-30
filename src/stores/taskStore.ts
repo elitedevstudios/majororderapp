@@ -10,7 +10,7 @@ interface TaskState {
   addTask: (title: string, priority: Priority, estimatedMinutes?: number) => void;
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
-  completeTask: (id: string, actualMinutes?: number) => Task | null;
+  completeTask: (id: string, elapsedSeconds: number, pointsEarned: number) => Task | null;
   reorderTasks: (startIndex: number, endIndex: number) => void;
   
   // Recurring task actions
@@ -48,7 +48,8 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       order: tasks.length,
       completed: false,
       estimatedMinutes,
-      pomodorosSpent: 0,
+      elapsedSeconds: 0,
+      pointsEarned: 0,
       createdAt: Date.now(),
       isRecurring: false,
     };
@@ -72,15 +73,18 @@ export const useTaskStore = create<TaskState>((set, get) => ({
     get().saveToStorage();
   },
 
-  completeTask: (id, actualMinutes) => {
+  completeTask: (id, elapsedSeconds, pointsEarned) => {
     const task = get().tasks.find((t) => t.id === id);
     if (!task) return null;
     
-    const completedTask = {
+    const actualMinutes = Math.ceil(elapsedSeconds / 60);
+    const completedTask: Task = {
       ...task,
       completed: true,
       completedAt: Date.now(),
-      actualMinutes: actualMinutes ?? task.actualMinutes,
+      actualMinutes,
+      elapsedSeconds,
+      pointsEarned,
     };
     
     set({
@@ -173,7 +177,8 @@ export const useTaskStore = create<TaskState>((set, get) => ({
         order: tasks.length + newTasks.length,
         completed: false,
         estimatedMinutes: recurring.estimatedMinutes,
-        pomodorosSpent: 0,
+        elapsedSeconds: 0,
+        pointsEarned: 0,
         createdAt: Date.now(),
         isRecurring: true,
         recurringTemplateId: recurring.id,

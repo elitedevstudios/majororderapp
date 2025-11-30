@@ -2,11 +2,11 @@ import { create } from 'zustand';
 
 interface SettingsState {
   soundEnabled: boolean;
-  workMinutes: number;
+  notificationsEnabled: boolean;
   
   // Actions
   setSoundEnabled: (enabled: boolean) => void;
-  setWorkMinutes: (minutes: number) => void;
+  setNotificationsEnabled: (enabled: boolean) => void;
   
   // Persistence
   loadFromStorage: () => Promise<void>;
@@ -15,15 +15,15 @@ interface SettingsState {
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
   soundEnabled: true,
-  workMinutes: 25,
+  notificationsEnabled: true,
 
   setSoundEnabled: (enabled) => {
     set({ soundEnabled: enabled });
     get().saveToStorage();
   },
 
-  setWorkMinutes: (minutes) => {
-    set({ workMinutes: minutes });
+  setNotificationsEnabled: (enabled) => {
+    set({ notificationsEnabled: enabled });
     get().saveToStorage();
   },
 
@@ -33,7 +33,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
       if (settings) {
         set({
           soundEnabled: settings.soundEnabled ?? true,
-          workMinutes: settings.workMinutes ?? 25,
+          notificationsEnabled: settings.notificationsEnabled ?? true,
         });
       }
     } catch (error) {
@@ -43,10 +43,10 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
 
   saveToStorage: async () => {
     try {
-      const { soundEnabled, workMinutes } = get();
+      const { soundEnabled, notificationsEnabled } = get();
       await window.electronAPI.store.set('settings', {
         soundEnabled,
-        workMinutes,
+        notificationsEnabled,
       });
     } catch (error) {
       console.error('Failed to save settings:', error);

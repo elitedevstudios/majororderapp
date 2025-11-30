@@ -301,8 +301,72 @@
   font-size: var(--font-xs);
 }
 
-.task-item__pomodoros {
+/* Stopwatch button */
+.task-item__stopwatch {
+  flex-shrink: 0;
+  inline-size: 28px;
+  block-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-sm);
+  background-color: var(--color-bg-dark);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.task-item__stopwatch:hover {
+  background-color: var(--color-cyan);
+  border-color: var(--color-cyan);
+}
+
+.task-item__stopwatch--active {
+  background-color: var(--color-red);
+  border-color: var(--color-red);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .task-item__stopwatch--active {
+    animation: none;
+  }
+}
+
+/* Active task state */
+.task-item--active {
+  border-color: var(--color-cyan);
+  background-color: var(--color-bg-light);
+  box-shadow: 0 0 8px var(--color-cyan);
+}
+
+/* Elapsed time display */
+.task-item__elapsed {
   font-size: var(--font-xs);
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono, monospace);
+}
+
+.task-item__elapsed--active {
+  color: var(--color-cyan);
+  font-weight: bold;
+}
+
+/* Points display */
+.task-item__points {
+  font-size: var(--font-xs);
+  color: var(--color-green);
+  font-weight: bold;
 }
 
 .task-item__feedback {

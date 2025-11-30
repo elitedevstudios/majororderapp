@@ -1,0 +1,56 @@
+.points-display {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background-color: var(--color-bg-mid);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.points-display__header {
+  text-align: center;
+}
+
+.points-display__label {
+  font-size: var(--font-xs);
+  color: var(--color-text-secondary);
+  letter-spacing: 2px;
+}
+
+.points-display__stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+}
+
+.points-display__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.points-display__value {
+  font-size: var(--font-xl);
+  font-weight: bold;
+  color: var(--color-cyan);
+}
+
+.points-display__stat-label {
+  font-size: var(--font-xs);
+  color: var(--color-text-secondary);
+}
+
+.points-display__divider {
+  inline-size: 1px;
+  block-size: 32px;
+  background-color: var(--color-border);
+}
+
+.points-display__hint {
+  font-size: var(--font-xs);
+  color: var(--color-text-disabled);
+  text-align: center;
+}

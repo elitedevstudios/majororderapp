@@ -1,5 +1,5 @@
 import { useTaskStore } from '../../stores/taskStore';
-import { useTimerStore } from '../../stores/timerStore';
+import { useStopwatchStore } from '../../stores/timerStore';
 import { useStreakStore } from '../../stores/streakStore';
 import styles from './DailyReview.module.css';
 
@@ -9,7 +9,7 @@ interface DailyReviewProps {
 
 export function DailyReview({ onDismiss }: DailyReviewProps): JSX.Element {
   const getCompletedToday = useTaskStore((state) => state.getCompletedToday);
-  const dailyPomodoros = useTimerStore((state) => state.dailyPomodorosCompleted);
+  const dailyPoints = useStopwatchStore((state) => state.dailyPoints);
   const currentStreak = useStreakStore((state) => state.currentStreak);
   
   const completedToday = getCompletedToday();
@@ -54,8 +54,8 @@ export function DailyReview({ onDismiss }: DailyReviewProps): JSX.Element {
           </div>
           
           <div className={styles.review__stat}>
-            <span className={styles['review__stat-value']}>🍅 {dailyPomodoros}</span>
-            <span className={styles['review__stat-label']}>Pomodoros</span>
+            <span className={styles['review__stat-value']}>⭐ {dailyPoints}</span>
+            <span className={styles['review__stat-label']}>Points</span>
           </div>
           
           <div className={styles.review__stat}>

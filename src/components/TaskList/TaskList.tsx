@@ -1,9 +1,9 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useTaskStore } from '../../stores/taskStore';
 import { useStreakStore } from '../../stores/streakStore';
+import { useStopwatchStore } from '../../stores/timerStore';
 import { playSound } from '../../utils/sound';
 import { TaskItem } from './TaskItem';
-import { CompletionModal } from './CompletionModal';
 import type { Badge, Task } from '../../types';
 import styles from './TaskList.module.css';
 
@@ -17,7 +17,6 @@ export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [showAll, setShowAll] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
-  const [pendingCompleteTask, setPendingCompleteTask] = useState<Task | null>(null);
   
   const tasks = useTaskStore((state) => state.tasks);
   const completeTask = useTaskStore((state) => state.completeTask);
@@ -32,6 +31,29 @@ export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
   const checkAndUpdateStreak = useStreakStore((state) => state.checkAndUpdateStreak);
   const checkBadgeUnlock = useStreakStore((state) => state.checkBadgeUnlock);
 
+  // Stopwatch state
+  const activeTaskId = useStopwatchStore((state) => state.activeTaskId);
+  const stopwatchStatus = useStopwatchStore((state) => state.status);
+  // Subscribe to elapsedSeconds to trigger re-renders when stopwatch ticks
+  useStopwatchStore((state) => state.elapsedSeconds);
+  const startStopwatch = useStopwatchStore((state) => state.startStopwatch);
+  const stopStopwatch = useStopwatchStore((state) => state.stopStopwatch);
+  const tick = useStopwatchStore((state) => state.tick);
+  const calculatePoints = useStopwatchStore((state) => state.calculatePoints);
+  const addPoints = useStopwatchStore((state) => state.addPoints);
+  const getFormattedTime = useStopwatchStore((state) => state.getFormattedTime);
+
+  // Tick the stopwatch every second when running
+  useEffect(() => {
+    if (stopwatchStatus !== 'running') return;
+    
+    const interval = setInterval(() => {
+      tick();
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, [stopwatchStatus, tick]);
+
   const sortedTasks = [...tasks].sort((a, b) => {
     // Incomplete tasks first, then by order
     if (a.completed !== b.completed) {
@@ -40,20 +62,48 @@ export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
     return a.order - b.order;
   });
 
-  const handleCompleteClick = (task: Task): void => {
-    // If task has estimate but no actual time, show modal
-    if (task.estimatedMinutes && !task.actualMinutes) {
-      setPendingCompleteTask(task);
+  // Handle start/stop for a task
+  const handleStartStop = (task: Task): void => {
+    if (activeTaskId === task.id && stopwatchStatus === 'running') {
+      // Stop tracking this task
+      stopStopwatch();
     } else {
-      finalizeComplete(task);
+      // Start tracking this task (stops any other active task)
+      startStopwatch(task.id);
     }
   };
 
-  const finalizeComplete = useCallback((task: Task, actualMinutes?: number): void => {
-    const completedTask = completeTask(task.id, actualMinutes);
+  const handleCompleteClick = (task: Task): void => {
+    // Get elapsed time from stopwatch if this task is active
+    let taskElapsedSeconds = task.elapsedSeconds;
+    
+    if (activeTaskId === task.id) {
+      // Stop the stopwatch and get final elapsed time
+      const result = stopStopwatch();
+      taskElapsedSeconds = result.elapsedSeconds;
+    }
+    
+    // Calculate points
+    const points = calculatePoints(task.estimatedMinutes, taskElapsedSeconds, task.priority);
+    const wasUnderEstimate = task.estimatedMinutes 
+      ? taskElapsedSeconds < task.estimatedMinutes * 60 
+      : false;
+    
+    finalizeComplete(task, taskElapsedSeconds, points, wasUnderEstimate);
+  };
+
+  const finalizeComplete = useCallback((
+    task: Task, 
+    elapsedSecs: number, 
+    points: number, 
+    wasUnderEstimate: boolean
+  ): void => {
+    const completedTask = completeTask(task.id, elapsedSecs, points);
     if (!completedTask) return;
 
-    setPendingCompleteTask(null);
+    // Add points to total
+    addPoints(points, wasUnderEstimate);
+
     playSound('taskComplete');
     incrementTasksCompleted();
 
@@ -72,12 +122,10 @@ export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
       if (badge) onBadgeUnlock(badge);
     }
 
-    // Sniper badge - completed under estimate (now works with manual time entry!)
-    if (completedTask.estimatedMinutes && completedTask.actualMinutes) {
-      if (completedTask.actualMinutes < completedTask.estimatedMinutes) {
-        const badge = checkBadgeUnlock({ completedUnderEstimate: true });
-        if (badge) onBadgeUnlock(badge);
-      }
+    // Sniper badge - completed under estimate
+    if (wasUnderEstimate) {
+      const badge = checkBadgeUnlock({ completedUnderEstimate: true });
+      if (badge) onBadgeUnlock(badge);
     }
 
     // Check if all tasks complete for streak
@@ -91,7 +139,7 @@ export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
         if (badge) onBadgeUnlock(badge);
       }
     }
-  }, [completeTask, incrementTasksCompleted, checkBadgeUnlock, onBadgeUnlock, areAllTasksComplete, checkAndUpdateStreak]);
+  }, [completeTask, addPoints, incrementTasksCompleted, checkBadgeUnlock, onBadgeUnlock, areAllTasksComplete, checkAndUpdateStreak]);
 
   const handleDelete = (taskId: string): void => {
     deleteTask(taskId);
@@ -165,10 +213,13 @@ export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
             key={task.id}
             task={task}
             isDragging={draggedIndex === index}
+            isActive={activeTaskId === task.id && stopwatchStatus === 'running'}
+            elapsedTime={activeTaskId === task.id ? getFormattedTime() : ''}
             timeFeedback={getTimeFeedback(task)}
             onComplete={() => handleCompleteClick(task)}
             onDelete={() => handleDelete(task.id)}
             onUpdate={(updates) => updateTask(task.id, updates)}
+            onStartStop={() => handleStartStop(task)}
             onDragStart={() => handleDragStart(index)}
             onDragOver={(e) => handleDragOver(e, index)}
             onDragEnd={handleDragEnd}
@@ -224,13 +275,7 @@ export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
         </div>
       )}
 
-      {pendingCompleteTask && (
-        <CompletionModal
-          task={pendingCompleteTask}
-          onConfirm={(actualMinutes) => finalizeComplete(pendingCompleteTask, actualMinutes)}
-          onCancel={() => setPendingCompleteTask(null)}
-        />
-      )}
+      {/* Removed CompletionModal - stopwatch handles time tracking now */}
     </div>
   );
 }

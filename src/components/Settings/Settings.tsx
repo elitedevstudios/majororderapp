@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSettingsStore } from '../../stores/settingsStore';
-import { useTimerStore } from '../../stores/timerStore';
+import { useStopwatchStore } from '../../stores/timerStore';
 import { useTaskStore } from '../../stores/taskStore';
 import { useStreakStore } from '../../stores/streakStore';
 import { setSoundEnabled, playSound } from '../../utils/sound';
@@ -11,11 +11,7 @@ export function Settings(): JSX.Element {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   
   const soundEnabled = useSettingsStore((state) => state.soundEnabled);
-  const workMinutes = useSettingsStore((state) => state.workMinutes);
   const setStoreSoundEnabled = useSettingsStore((state) => state.setSoundEnabled);
-  const setStoreWorkMinutes = useSettingsStore((state) => state.setWorkMinutes);
-  
-  const setTimerWorkDuration = useTimerStore((state) => state.setWorkDuration);
 
   // Sync sound utility with store
   useEffect(() => {
@@ -30,14 +26,6 @@ export function Settings(): JSX.Element {
     }
   };
 
-  const handleWorkMinutesChange = (minutes: number): void => {
-    setStoreWorkMinutes(minutes);
-    setTimerWorkDuration(minutes);
-    playSound('click');
-  };
-
-  const workDurationOptions = [15, 20, 25, 30, 45, 60];
-
   const handleResetAllData = async (): Promise<void> => {
     // Clear all stores
     useTaskStore.setState({ tasks: [], recurringTasks: [] });
@@ -48,12 +36,21 @@ export function Settings(): JSX.Element {
       totalTasksCompleted: 0,
       badges: useStreakStore.getState().badges.map(b => ({ ...b, unlockedAt: undefined })),
     });
-    useTimerStore.getState().stopTimer();
+    useStopwatchStore.setState({
+      status: 'idle',
+      activeTaskId: null,
+      elapsedSeconds: 0,
+      startedAt: null,
+      totalPoints: 0,
+      dailyPoints: 0,
+      tasksUnderEstimate: 0,
+    });
     
     // Clear persisted data
     await window.electronAPI.store.delete('tasks');
     await window.electronAPI.store.delete('recurringTasks');
     await window.electronAPI.store.delete('streakData');
+    await window.electronAPI.store.delete('stopwatchData');
     
     setShowResetConfirm(false);
     setIsOpen(false);
@@ -101,22 +98,6 @@ export function Settings(): JSX.Element {
                 </button>
               </div>
 
-              {/* Work Duration */}
-              <div className={styles.settings__option}>
-                <span className={styles.settings__label}>Work Duration</span>
-                <div className={styles.settings__durationBtns}>
-                  {workDurationOptions.map((mins) => (
-                    <button
-                      key={mins}
-                      className={`${styles.settings__durationBtn} ${workMinutes === mins ? styles['settings__durationBtn--active'] : ''}`}
-                      onClick={() => handleWorkMinutesChange(mins)}
-                    >
-                      {mins}m
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* Reset Data */}
               <div className={styles.settings__option}>
                 <span className={styles.settings__label}>Reset All Data</span>
@@ -150,8 +131,8 @@ export function Settings(): JSX.Element {
 
               {/* App Info */}
               <div className={styles.settings__info}>
-                <p>Major Order v1.0.0</p>
-                <p className={styles.settings__tagline}>No excuses. Complete your orders.</p>
+                <p>Major Order v2.0.0</p>
+                <p className={styles.settings__tagline}>Track time. Earn points. Complete orders.</p>
               </div>
             </div>
           </div>
