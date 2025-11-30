@@ -1,23 +1,28 @@
 :root {
-  /* SNES-era Color Palette */
-  --color-bg-dark: #1a1c2c;
-  --color-bg-mid: #333c57;
-  --color-bg-light: #566c86;
+  /* Major Order Blue Theme - Based on eagle icon */
+  --color-bg-dark: #0a0e14;
+  --color-bg-mid: #111a24;
+  --color-bg-light: #1a2836;
   
   /* Accent Colors */
-  --color-red: #b13e53;
+  --color-red: #ff5555;
   --color-orange: #ef7d57;
-  --color-yellow: #ffcd75;
-  --color-green: #38b764;
-  --color-blue: #41a6f6;
-  --color-cyan: #73eff7;
-  --color-purple: #9b6dff;
-  --color-pink: #a7f070;
+  --color-yellow: #f1c40f;
+  --color-green: #2ecc71;
+  --color-blue: #3498db;
+  --color-cyan: #4ecdc4;
+  --color-purple: #9b59b6;
+  --color-pink: #e91e63;
   
-  /* Timer Accent - Deep purple/magenta theme */
-  --color-timer-bg: #2d1b4e;
-  --color-timer-accent: #9b6dff;
-  --color-timer-glow: rgba(155, 109, 255, 0.3);
+  /* Primary Theme Colors - From icon */
+  --color-primary: #4ecdc4;
+  --color-primary-dark: #2a7c7c;
+  --color-primary-light: #7ee8e2;
+  
+  /* Timer Accent - Cyan/teal theme */
+  --color-timer-bg: #0d1921;
+  --color-timer-accent: #4ecdc4;
+  --color-timer-glow: rgba(78, 205, 196, 0.3);
   
   /* Priority Colors */
   --color-priority-high: var(--color-red);
@@ -30,8 +35,8 @@
   --color-text-disabled: #566c86;
   
   /* UI Colors */
-  --color-border: #566c86;
-  --color-border-active: var(--color-blue);
+  --color-border: #2a3a4a;
+  --color-border-active: var(--color-primary);
   --color-success: var(--color-green);
   --color-warning: var(--color-orange);
   --color-error: var(--color-red);

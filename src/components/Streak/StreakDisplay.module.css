@@ -71,7 +71,7 @@
 
 .streak__arrow {
   font-size: var(--font-md);
-  color: var(--color-cyan);
+  color: var(--color-primary);
   animation: arrowPulse 1s ease-in-out infinite;
 }
 
@@ -95,8 +95,8 @@
 
 .streak__count--pending {
   font-size: var(--font-2xl);
-  color: var(--color-cyan);
-  text-shadow: 0 0 8px var(--color-cyan);
+  color: var(--color-primary);
+  text-shadow: 0 0 8px var(--color-primary);
 }
 
 .streak__icon--pending {

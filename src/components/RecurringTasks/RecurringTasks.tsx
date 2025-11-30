@@ -4,6 +4,8 @@ import { playSound } from '../../utils/sound';
 import type { Priority } from '../../types';
 import styles from './RecurringTasks.module.css';
 
+const MAX_RECURRING_TASKS = 3;
+
 export function RecurringTasks(): JSX.Element {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
@@ -67,7 +69,7 @@ export function RecurringTasks(): JSX.Element {
           🔄 STANDING ORDERS
         </span>
         <span className={styles.recurring__count}>
-          {recurringTasks.filter(t => t.isActive).length} active
+          {recurringTasks.length}/{MAX_RECURRING_TASKS}
         </span>
         <span className={styles.recurring__chevron}>
           {isExpanded ? '▼' : '▶'}
@@ -78,7 +80,7 @@ export function RecurringTasks(): JSX.Element {
         <div className={styles.recurring__content}>
           {recurringTasks.length === 0 && !isAdding && (
             <p className={styles.recurring__empty}>
-              No recurring tasks. Add tasks that repeat daily or weekly.
+              No recurring tasks. Add up to 3 daily tasks.
             </p>
           )}
 
@@ -170,12 +172,14 @@ export function RecurringTasks(): JSX.Element {
               </div>
             </form>
           ) : (
-            <button
-              className={styles.recurring__addBtn}
-              onClick={() => setIsAdding(true)}
-            >
-              + Add Recurring Task
-            </button>
+            recurringTasks.length < MAX_RECURRING_TASKS && (
+              <button
+                className={styles.recurring__addBtn}
+                onClick={() => setIsAdding(true)}
+              >
+                + Add Recurring Task ({MAX_RECURRING_TASKS - recurringTasks.length} left)
+              </button>
+            )
           )}
         </div>
       )}

@@ -1,0 +1,161 @@
+.focus {
+  position: fixed;
+  inset: 0;
+  background-color: var(--color-bg-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.focus__exit {
+  position: absolute;
+  inset-block-start: var(--space-md);
+  inset-inline-end: var(--space-md);
+  inline-size: 32px;
+  block-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-md);
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.focus__exit:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-text-secondary);
+}
+
+.focus__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xl);
+  text-align: center;
+}
+
+.focus__mode {
+  font-size: var(--font-xs);
+  color: var(--color-cyan);
+  letter-spacing: 4px;
+}
+
+.focus__timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.focus__time {
+  font-size: 72px;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.focus__time--urgent {
+  color: var(--color-red);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .focus__time--urgent {
+    animation: none;
+  }
+}
+
+.focus__progress {
+  inline-size: 200px;
+  block-size: 4px;
+  background-color: var(--color-bg-mid);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.focus__progress-bar {
+  block-size: 100%;
+  background-color: var(--color-cyan);
+  transition: inline-size 1s linear;
+}
+
+.focus__task {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  background-color: var(--color-bg-mid);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  min-inline-size: 250px;
+}
+
+.focus__taskLabel {
+  font-size: 10px;
+  color: var(--color-text-disabled);
+  letter-spacing: 2px;
+}
+
+.focus__taskTitle {
+  font-size: var(--font-sm);
+  color: var(--color-text-primary);
+}
+
+.focus__pomodoros {
+  font-size: var(--font-xs);
+  color: var(--color-text-secondary);
+}
+
+.focus__controls {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.focus__btn--start,
+.focus__btn--pause {
+  padding: var(--space-sm) var(--space-xl);
+  font-size: var(--font-sm);
+  font-family: inherit;
+  border: 2px solid;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.focus__btn--start {
+  background-color: var(--color-green);
+  border-color: var(--color-green);
+  color: var(--color-bg-dark);
+}
+
+.focus__btn--start:hover {
+  background-color: transparent;
+  color: var(--color-green);
+}
+
+.focus__btn--pause {
+  background-color: var(--color-yellow);
+  border-color: var(--color-yellow);
+  color: var(--color-bg-dark);
+}
+
+.focus__btn--pause:hover {
+  background-color: transparent;
+  color: var(--color-yellow);
+}
+
+.focus__hint {
+  font-size: var(--font-xs);
+  color: var(--color-text-disabled);
+}

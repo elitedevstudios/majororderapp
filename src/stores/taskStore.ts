@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
-import type { Task, RecurringTask, Priority } from '../types';
+import type { Task, RecurringTask, Priority, DayStats, PriorityBreakdown } from '../types';
 
 interface TaskState {
   tasks: Task[];
@@ -24,6 +24,8 @@ interface TaskState {
   getTodaysTasks: () => Task[];
   getIncompleteTasks: () => Task[];
   getCompletedToday: () => Task[];
+  getCompletedTasks: () => Task[];
+  getWeeklyStats: () => DayStats[];
   areAllTasksComplete: () => boolean;
   
   // Persistence
@@ -150,9 +152,8 @@ export const useTaskStore = create<TaskState>((set, get) => ({
 
     recurringTasks.forEach((recurring) => {
       if (!recurring.isActive) return;
-      if (recurring.lastGenerated === today) return;
       
-      // Check frequency
+      // Check frequency for weekly tasks
       if (recurring.frequency === 'weekly' && recurring.dayOfWeek !== dayOfWeek) {
         return;
       }
@@ -215,12 +216,58 @@ export const useTaskStore = create<TaskState>((set, get) => ({
     });
   },
 
+  getCompletedTasks: () => {
+    return get().tasks
+      .filter((task) => task.completed)
+      .sort((a, b) => (b.completedAt || 0) - (a.completedAt || 0));
+  },
+
+  getWeeklyStats: (): DayStats[] => {
+    const tasks = get().tasks;
+    const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    
+    const stats: DayStats[] = [];
+    
+    // Get last 7 days including today
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toISOString().split('T')[0];
+      const dayName = dayNames[date.getDay()];
+      
+      const dayTasks = tasks.filter((task) => {
+        if (!task.completed || !task.completedAt) return false;
+        const completedDate = new Date(task.completedAt).toISOString().split('T')[0];
+        return completedDate === dateStr;
+      });
+      
+      const regular: PriorityBreakdown = { high: 0, medium: 0, low: 0 };
+      const recurring: PriorityBreakdown = { high: 0, medium: 0, low: 0 };
+      
+      dayTasks.forEach((task) => {
+        const target = task.isRecurring ? recurring : regular;
+        target[task.priority]++;
+      });
+      
+      stats.push({
+        date: dateStr,
+        dayName,
+        count: dayTasks.length,
+        regular,
+        recurring,
+      });
+    }
+    
+    return stats;
+  },
+
   areAllTasksComplete: () => {
     const todaysTasks = get().getTodaysTasks();
     return todaysTasks.length > 0 && todaysTasks.every((task) => task.completed);
   },
 
   loadFromStorage: async () => {
+    if (!window.electronAPI?.store) return;
     try {
       const tasks = await window.electronAPI.store.get('tasks') as Task[] | undefined;
       const recurringTasks = await window.electronAPI.store.get('recurringTasks') as RecurringTask[] | undefined;
@@ -250,6 +297,7 @@ export const useTaskStore = create<TaskState>((set, get) => ({
   },
 
   saveToStorage: async () => {
+    if (!window.electronAPI?.store) return;
     try {
       await window.electronAPI.store.set('tasks', get().tasks);
       await window.electronAPI.store.set('recurringTasks', get().recurringTasks);

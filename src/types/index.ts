@@ -89,6 +89,21 @@ export type TimeFeedback = {
   difference: number;
 };
 
+// Weekly Stats Types
+export interface PriorityBreakdown {
+  high: number;
+  medium: number;
+  low: number;
+}
+
+export interface DayStats {
+  date: string;
+  dayName: string;
+  count: number;
+  regular: PriorityBreakdown;
+  recurring: PriorityBreakdown;
+}
+
 // Electron API Types
 export interface ElectronAPI {
   store: {

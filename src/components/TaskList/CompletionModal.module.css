@@ -1,0 +1,124 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.modal {
+  background-color: var(--color-bg-mid);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  min-inline-size: 280px;
+  max-inline-size: 90vw;
+  box-shadow: 0 4px 0 var(--color-bg-dark);
+}
+
+.modal__title {
+  font-size: var(--font-sm);
+  color: var(--color-green);
+  text-align: center;
+  margin-block-end: var(--space-sm);
+  letter-spacing: 2px;
+}
+
+.modal__task {
+  font-size: var(--font-xs);
+  color: var(--color-text-primary);
+  text-align: center;
+  margin-block-end: var(--space-md);
+  padding-block: var(--space-xs);
+  border-block: 1px solid var(--color-border);
+}
+
+.modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.modal__label {
+  font-size: var(--font-xs);
+  color: var(--color-text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.modal__inputGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.modal__input {
+  flex: 1;
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-sm);
+  font-family: inherit;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-dark);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.modal__input:focus {
+  outline: none;
+  border-color: var(--color-cyan);
+}
+
+.modal__unit {
+  font-size: var(--font-xs);
+  color: var(--color-text-secondary);
+}
+
+.modal__estimate {
+  font-size: var(--font-xs);
+  color: var(--color-text-disabled);
+  text-align: center;
+}
+
+.modal__actions {
+  display: flex;
+  gap: var(--space-sm);
+  margin-block-start: var(--space-sm);
+}
+
+.modal__btn--primary,
+.modal__btn--secondary {
+  flex: 1;
+  padding: var(--space-sm);
+  font-size: var(--font-xs);
+  font-family: inherit;
+  border: 2px solid;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.modal__btn--primary {
+  background-color: var(--color-green);
+  border-color: var(--color-green);
+  color: var(--color-bg-dark);
+}
+
+.modal__btn--primary:hover {
+  background-color: var(--color-bg-dark);
+  color: var(--color-green);
+}
+
+.modal__btn--secondary {
+  background-color: transparent;
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.modal__btn--secondary:hover {
+  border-color: var(--color-text-secondary);
+  color: var(--color-text-primary);
+}

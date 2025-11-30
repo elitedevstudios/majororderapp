@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useTaskStore } from '../../stores/taskStore';
 import { useStreakStore } from '../../stores/streakStore';
 import { playSound } from '../../utils/sound';
 import { TaskItem } from './TaskItem';
+import { CompletionModal } from './CompletionModal';
 import type { Badge, Task } from '../../types';
 import styles from './TaskList.module.css';
 
@@ -15,13 +16,17 @@ const MAX_VISIBLE_TASKS = 3;
 export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [showAll, setShowAll] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(false);
+  const [pendingCompleteTask, setPendingCompleteTask] = useState<Task | null>(null);
   
   const tasks = useTaskStore((state) => state.tasks);
   const completeTask = useTaskStore((state) => state.completeTask);
   const deleteTask = useTaskStore((state) => state.deleteTask);
+  const updateTask = useTaskStore((state) => state.updateTask);
   const reorderTasks = useTaskStore((state) => state.reorderTasks);
   const areAllTasksComplete = useTaskStore((state) => state.areAllTasksComplete);
   const getCompletedToday = useTaskStore((state) => state.getCompletedToday);
+  const getCompletedTasks = useTaskStore((state) => state.getCompletedTasks);
   
   const incrementTasksCompleted = useStreakStore((state) => state.incrementTasksCompleted);
   const checkAndUpdateStreak = useStreakStore((state) => state.checkAndUpdateStreak);
@@ -35,10 +40,20 @@ export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
     return a.order - b.order;
   });
 
-  const handleComplete = (task: Task): void => {
-    const completedTask = completeTask(task.id);
+  const handleCompleteClick = (task: Task): void => {
+    // If task has estimate but no actual time, show modal
+    if (task.estimatedMinutes && !task.actualMinutes) {
+      setPendingCompleteTask(task);
+    } else {
+      finalizeComplete(task);
+    }
+  };
+
+  const finalizeComplete = useCallback((task: Task, actualMinutes?: number): void => {
+    const completedTask = completeTask(task.id, actualMinutes);
     if (!completedTask) return;
 
+    setPendingCompleteTask(null);
     playSound('taskComplete');
     incrementTasksCompleted();
 
@@ -57,7 +72,7 @@ export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
       if (badge) onBadgeUnlock(badge);
     }
 
-    // Sniper badge - completed under estimate
+    // Sniper badge - completed under estimate (now works with manual time entry!)
     if (completedTask.estimatedMinutes && completedTask.actualMinutes) {
       if (completedTask.actualMinutes < completedTask.estimatedMinutes) {
         const badge = checkBadgeUnlock({ completedUnderEstimate: true });
@@ -76,7 +91,7 @@ export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
         if (badge) onBadgeUnlock(badge);
       }
     }
-  };
+  }, [completeTask, incrementTasksCompleted, checkBadgeUnlock, onBadgeUnlock, areAllTasksComplete, checkAndUpdateStreak]);
 
   const handleDelete = (taskId: string): void => {
     deleteTask(taskId);
@@ -151,8 +166,9 @@ export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
             task={task}
             isDragging={draggedIndex === index}
             timeFeedback={getTimeFeedback(task)}
-            onComplete={() => handleComplete(task)}
+            onComplete={() => handleCompleteClick(task)}
             onDelete={() => handleDelete(task.id)}
+            onUpdate={(updates) => updateTask(task.id, updates)}
             onDragStart={() => handleDragStart(index)}
             onDragOver={(e) => handleDragOver(e, index)}
             onDragEnd={handleDragEnd}
@@ -180,11 +196,60 @@ export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
 
       {completedTodayTasks.length > 0 && (
         <div className={styles['task-list__completed']}>
-          <span className={styles['task-list__completed-label']}>
-            ✓ {completedTodayTasks.length} completed today
-          </span>
+          <button 
+            className={styles['task-list__completed-toggle']}
+            onClick={() => setShowCompleted(!showCompleted)}
+          >
+            <span className={styles['task-list__completed-label']}>
+              {completedTodayTasks.length} completed today
+            </span>
+            <span className={styles['task-list__completed-chevron']}>
+              {showCompleted ? '▼' : '▶'}
+            </span>
+          </button>
+          
+          {showCompleted && (
+            <ul className={styles['task-list__completed-items']}>
+              {getCompletedTasks().map((task) => (
+                <li key={task.id} className={styles['task-list__completed-item']}>
+                  <span className={styles['task-list__completed-check']}>✓</span>
+                  <span className={styles['task-list__completed-title']}>{task.title}</span>
+                  <span className={styles['task-list__completed-date']}>
+                    {task.completedAt ? formatCompletedDate(task.completedAt) : ''}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
+      )}
+
+      {pendingCompleteTask && (
+        <CompletionModal
+          task={pendingCompleteTask}
+          onConfirm={(actualMinutes) => finalizeComplete(pendingCompleteTask, actualMinutes)}
+          onCancel={() => setPendingCompleteTask(null)}
+        />
       )}
     </div>
   );
+}
+
+function formatCompletedDate(timestamp: number): string {
+  const date = new Date(timestamp);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  
+  const dateStr = date.toISOString().split('T')[0];
+  const todayStr = today.toISOString().split('T')[0];
+  const yesterdayStr = yesterday.toISOString().split('T')[0];
+  
+  if (dateStr === todayStr) {
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  } else if (dateStr === yesterdayStr) {
+    return 'Yesterday';
+  } else {
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  }
 }

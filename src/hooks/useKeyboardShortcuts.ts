@@ -5,10 +5,11 @@ import { playSound } from '../utils/sound';
 interface KeyboardShortcutsOptions {
   onNewTask?: () => void;
   onCloseModal?: () => void;
+  onToggleFocus?: () => void;
 }
 
 export function useKeyboardShortcuts(options: KeyboardShortcutsOptions = {}): void {
-  const { onNewTask, onCloseModal } = options;
+  const { onNewTask, onCloseModal, onToggleFocus } = options;
   
   const status = useTimerStore((state) => state.status);
   const startTimer = useTimerStore((state) => state.startTimer);
@@ -46,12 +47,19 @@ export function useKeyboardShortcuts(options: KeyboardShortcutsOptions = {}): vo
       return;
     }
 
+    // Cmd/Ctrl + F - Toggle focus mode
+    if ((event.metaKey || event.ctrlKey) && event.key === 'f') {
+      event.preventDefault();
+      onToggleFocus?.();
+      return;
+    }
+
     // Escape - Close modal
     if (event.key === 'Escape') {
       onCloseModal?.();
       return;
     }
-  }, [status, startTimer, pauseTimer, onNewTask, onCloseModal]);
+  }, [status, startTimer, pauseTimer, onNewTask, onCloseModal, onToggleFocus]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);

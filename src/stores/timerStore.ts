@@ -20,6 +20,8 @@ interface TimerStoreState extends TimerState {
   // Persistence
   loadConfig: () => Promise<void>;
   saveConfig: () => Promise<void>;
+  loadDailyPomodoros: () => Promise<void>;
+  saveDailyPomodoros: () => Promise<void>;
 }
 
 const DEFAULT_CONFIG: TimerConfig = {
@@ -93,7 +95,6 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
     if (mode === 'work') {
       newPomodorosCompleted++;
       newDailyPomodoros++;
-      
       if (newPomodorosCompleted % config.longBreakInterval === 0) {
         nextMode = 'longBreak';
       } else {
@@ -111,6 +112,11 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
       dailyPomodorosCompleted: newDailyPomodoros,
       currentTaskId: nextMode === 'work' ? null : get().currentTaskId,
     });
+    
+    // Persist daily pomodoros when work session completes
+    if (mode === 'work') {
+      get().saveDailyPomodoros();
+    }
     
     window.electronAPI?.updateTimer('', 'idle');
   },
@@ -173,6 +179,32 @@ export const useTimerStore = create<TimerStoreState>((set, get) => ({
       await window.electronAPI.store.set('timerConfig', get().config);
     } catch (error) {
       console.error('Failed to save timer config:', error);
+    }
+  },
+
+  loadDailyPomodoros: async () => {
+    try {
+      const data = await window.electronAPI.store.get('dailyPomodoros') as { date: string; count: number } | undefined;
+      const today = new Date().toISOString().split('T')[0];
+      if (data && data.date === today) {
+        set({ dailyPomodorosCompleted: data.count });
+      } else {
+        set({ dailyPomodorosCompleted: 0 });
+      }
+    } catch (error) {
+      console.error('Failed to load daily pomodoros:', error);
+    }
+  },
+
+  saveDailyPomodoros: async () => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      await window.electronAPI.store.set('dailyPomodoros', {
+        date: today,
+        count: get().dailyPomodorosCompleted,
+      });
+    } catch (error) {
+      console.error('Failed to save daily pomodoros:', error);
     }
   },
 }));

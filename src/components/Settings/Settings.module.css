@@ -97,8 +97,8 @@
 }
 
 .settings__toggle--on {
-  background-color: var(--color-green);
-  border-color: var(--color-green);
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
   color: var(--color-bg-dark);
 }
 
@@ -124,8 +124,8 @@
 }
 
 .settings__durationBtn--active {
-  background-color: var(--color-blue);
-  border-color: var(--color-blue);
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
   color: var(--color-bg-dark);
 }
 

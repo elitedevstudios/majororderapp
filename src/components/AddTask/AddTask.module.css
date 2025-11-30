@@ -24,15 +24,15 @@
 }
 
 .add-task__input:focus {
-  border-color: var(--color-blue);
+  border-color: var(--color-primary);
 }
 
 .add-task__submit {
   padding-block: var(--space-sm);
   padding-inline: var(--space-md);
   font-size: var(--font-xs);
-  background-color: var(--color-green);
-  border: 2px solid var(--color-green);
+  background-color: var(--color-primary);
+  border: 2px solid var(--color-primary);
   border-radius: var(--radius-sm);
   color: var(--color-bg-dark);
   cursor: pointer;
@@ -134,5 +134,5 @@
 }
 
 .add-task__time-input:focus {
-  border-color: var(--color-blue);
+  border-color: var(--color-primary);
 }

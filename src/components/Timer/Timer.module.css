@@ -1,11 +1,11 @@
-/* Minimal Timer with Accent Color Scheme */
+/* Minimal Timer with Cyan/Teal Accent Color Scheme */
 .timer {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
   padding: var(--space-sm) var(--space-md);
-  background: linear-gradient(135deg, var(--color-timer-bg) 0%, #1f1235 100%);
-  border: 2px solid var(--color-purple);
+  background: linear-gradient(135deg, var(--color-timer-bg) 0%, #0f1f2a 100%);
+  border: 2px solid var(--color-primary);
   border-radius: var(--radius-md);
   box-shadow: 0 0 20px var(--color-timer-glow);
 }
@@ -29,7 +29,7 @@
 
 .timer__label {
   font-size: 6px;
-  color: var(--color-purple);
+  color: var(--color-primary);
   letter-spacing: 1px;
   text-transform: uppercase;
 }
@@ -73,9 +73,9 @@
 
 .timer__progress-bar {
   block-size: 100%;
-  background: linear-gradient(90deg, var(--color-purple) 0%, var(--color-cyan) 100%);
+  background: linear-gradient(90deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
   transition: inline-size var(--transition-normal);
-  box-shadow: 0 0 6px var(--color-purple);
+  box-shadow: 0 0 6px var(--color-primary);
 }
 
 .timer__controls {
@@ -90,9 +90,9 @@
   padding: var(--space-sm);
   font-size: var(--font-md);
   background-color: transparent;
-  border: 2px solid var(--color-purple);
+  border: 2px solid var(--color-primary);
   border-radius: var(--radius-sm);
-  color: var(--color-purple);
+  color: var(--color-primary);
   cursor: pointer;
   transition: all var(--transition-fast);
   min-inline-size: 32px;
@@ -100,7 +100,7 @@
 }
 
 .timer__button:hover {
-  background-color: var(--color-purple);
+  background-color: var(--color-primary);
   color: var(--color-bg-dark);
   box-shadow: 0 0 8px var(--color-timer-glow);
 }
@@ -110,15 +110,15 @@
 }
 
 .timer__button--primary {
-  background-color: var(--color-purple);
-  border-color: var(--color-purple);
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
   color: var(--color-bg-dark);
 }
 
 .timer__button--primary:hover {
-  box-shadow: 0 0 12px var(--color-purple);
-  background-color: var(--color-cyan);
-  border-color: var(--color-cyan);
+  box-shadow: 0 0 12px var(--color-primary);
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary-light);
 }
 
 .timer__button--secondary {

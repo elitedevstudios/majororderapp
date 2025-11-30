@@ -10,16 +10,25 @@ import { Timer } from './components/Timer/Timer';
 import { TaskList } from './components/TaskList/TaskList';
 import { AddTask } from './components/AddTask/AddTask';
 import { StreakDisplay } from './components/Streak/StreakDisplay';
-import { RecurringTasks } from './components/RecurringTasks/RecurringTasks';
+import { WeeklyChart } from './components/WeeklyChart/WeeklyChart';
+// import { RecurringTasks } from './components/RecurringTasks/RecurringTasks';
 import { BadgeNotification } from './components/Badges/BadgeNotification';
+import { FocusMode } from './components/FocusMode/FocusMode';
+import { DailyReview } from './components/DailyReview/DailyReview';
 import type { Badge } from './types';
 import styles from './App.module.css';
 
 function App(): JSX.Element {
   const [unlockedBadge, setUnlockedBadge] = useState<Badge | null>(null);
+  const [isFocusMode, setIsFocusMode] = useState(false);
+  const [showDailyReview, setShowDailyReview] = useState(false);
+  const [reviewDismissedToday, setReviewDismissedToday] = useState(false);
   const addTaskInputRef = useRef<HTMLInputElement>(null);
   const loadTasks = useTaskStore((state) => state.loadFromStorage);
-  const loadTimer = useTimerStore((state) => state.loadConfig);
+  const areAllTasksComplete = useTaskStore((state) => state.areAllTasksComplete);
+  const tasks = useTaskStore((state) => state.tasks);
+  const loadTimerConfig = useTimerStore((state) => state.loadConfig);
+  const loadDailyPomodoros = useTimerStore((state) => state.loadDailyPomodoros);
   const loadStreak = useStreakStore((state) => state.loadFromStorage);
   const loadSettings = useSettingsStore((state) => state.loadFromStorage);
   const soundEnabled = useSettingsStore((state) => state.soundEnabled);
@@ -27,24 +36,40 @@ function App(): JSX.Element {
   useEffect(() => {
     // Load all data from storage on mount
     const initializeApp = async (): Promise<void> => {
-      await Promise.all([loadTasks(), loadTimer(), loadStreak(), loadSettings()]);
+      await Promise.all([loadTasks(), loadTimerConfig(), loadDailyPomodoros(), loadStreak(), loadSettings()]);
     };
     initializeApp();
-  }, [loadTasks, loadTimer, loadStreak, loadSettings]);
+  }, [loadTasks, loadTimerConfig, loadDailyPomodoros, loadStreak, loadSettings]);
 
   // Sync sound setting
   useEffect(() => {
     setSoundEnabled(soundEnabled);
   }, [soundEnabled]);
 
+  // Show daily review when all tasks complete
+  useEffect(() => {
+    const hasTasks = tasks.length > 0;
+    const allComplete = areAllTasksComplete();
+    
+    if (hasTasks && allComplete && !reviewDismissedToday) {
+      setShowDailyReview(true);
+    }
+  }, [tasks, areAllTasksComplete, reviewDismissedToday]);
+
   // Focus new task input
   const focusNewTask = useCallback(() => {
     addTaskInputRef.current?.focus();
   }, []);
 
+  // Toggle focus mode
+  const toggleFocusMode = useCallback(() => {
+    setIsFocusMode((prev) => !prev);
+  }, []);
+
   // Keyboard shortcuts
   useKeyboardShortcuts({
     onNewTask: focusNewTask,
+    onToggleFocus: toggleFocusMode,
   });
 
   const handleBadgeUnlock = (badge: Badge): void => {
@@ -77,12 +102,31 @@ function App(): JSX.Element {
         </section>
 
         <section className={styles.section}>
+          <WeeklyChart />
+        </section>
+
+        {/* Standing Orders feature archived for simplicity
+        <section className={styles.section}>
           <RecurringTasks />
         </section>
+        */}
       </main>
 
       {unlockedBadge && (
         <BadgeNotification badge={unlockedBadge} onDismiss={handleBadgeDismiss} />
+      )}
+
+      {isFocusMode && (
+        <FocusMode onExit={() => setIsFocusMode(false)} />
+      )}
+
+      {showDailyReview && (
+        <DailyReview
+          onDismiss={() => {
+            setShowDailyReview(false);
+            setReviewDismissedToday(true);
+          }}
+        />
       )}
     </div>
   );

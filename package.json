@@ -65,7 +65,7 @@
           "arch": ["arm64"]
         }
       ],
-      "icon": "src/assets/images/icon.icns",
+      "icon": "build/icon.icns",
       "category": "public.app-category.productivity"
     }
   }
