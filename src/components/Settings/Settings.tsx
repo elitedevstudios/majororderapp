@@ -4,6 +4,7 @@ import { useStopwatchStore } from '../../stores/timerStore';
 import { useTaskStore } from '../../stores/taskStore';
 import { useStreakStore } from '../../stores/streakStore';
 import { setSoundEnabled, playSound } from '../../utils/sound';
+import { downloadBackup } from '../../utils/export';
 import styles from './Settings.module.css';
 
 export function Settings(): JSX.Element {
@@ -95,6 +96,20 @@ export function Settings(): JSX.Element {
                   aria-pressed={soundEnabled}
                 >
                   {soundEnabled ? 'ON' : 'OFF'}
+                </button>
+              </div>
+
+              {/* Export Data */}
+              <div className={styles.settings__option}>
+                <span className={styles.settings__label}>Backup Data</span>
+                <button
+                  className={styles.settings__exportBtn}
+                  onClick={() => {
+                    downloadBackup();
+                    playSound('click');
+                  }}
+                >
+                  EXPORT
                 </button>
               </div>
 

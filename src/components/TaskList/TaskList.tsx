@@ -65,7 +65,14 @@ export function TaskList({ onBadgeUnlock }: TaskListProps): JSX.Element {
   // Handle start/stop for a task
   const handleStartStop = (task: Task): void => {
     if (activeTaskId === task.id && stopwatchStatus === 'running') {
-      // Stop tracking this task
+      // Confirm before discarding tracked time
+      const elapsedSeconds = useStopwatchStore.getState().elapsedSeconds;
+      if (elapsedSeconds > 60) {
+        const confirmed = window.confirm(
+          `Stop tracking? ${Math.floor(elapsedSeconds / 60)} minutes will be discarded.\n\nTip: Click the checkbox to complete the task and save your time.`
+        );
+        if (!confirmed) return;
+      }
       stopStopwatch();
     } else {
       // Start tracking this task (stops any other active task)

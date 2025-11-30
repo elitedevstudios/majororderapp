@@ -1,24 +1,82 @@
 import { useEffect } from 'react';
 import { useStopwatchStore } from '../../stores/timerStore';
 import { useTaskStore } from '../../stores/taskStore';
+import { useStreakStore } from '../../stores/streakStore';
+import { playSound } from '../../utils/sound';
+import type { Badge } from '../../types';
 import styles from './FocusMode.module.css';
 
 interface FocusModeProps {
   onExit: () => void;
+  onBadgeUnlock?: (badge: Badge) => void;
 }
 
-export function FocusMode({ onExit }: FocusModeProps): JSX.Element {
+export function FocusMode({ onExit, onBadgeUnlock }: FocusModeProps): JSX.Element {
   const status = useStopwatchStore((state) => state.status);
   const activeTaskId = useStopwatchStore((state) => state.activeTaskId);
   const elapsedSeconds = useStopwatchStore((state) => state.elapsedSeconds);
   const tick = useStopwatchStore((state) => state.tick);
   const totalPoints = useStopwatchStore((state) => state.totalPoints);
+  const stopStopwatch = useStopwatchStore((state) => state.stopStopwatch);
+  const calculatePoints = useStopwatchStore((state) => state.calculatePoints);
+  const addPoints = useStopwatchStore((state) => state.addPoints);
+  const tasksUnderEstimate = useStopwatchStore((state) => state.tasksUnderEstimate);
 
   const tasks = useTaskStore((state) => state.tasks);
   const getIncompleteTasks = useTaskStore((state) => state.getIncompleteTasks);
+  const completeTask = useTaskStore((state) => state.completeTask);
+  const areAllTasksComplete = useTaskStore((state) => state.areAllTasksComplete);
+  
+  const incrementTasksCompleted = useStreakStore((state) => state.incrementTasksCompleted);
+  const checkAndUpdateStreak = useStreakStore((state) => state.checkAndUpdateStreak);
+  const checkBadgeUnlock = useStreakStore((state) => state.checkBadgeUnlock);
+  const totalTasksCompleted = useStreakStore((state) => state.totalTasksCompleted);
+  const currentStreak = useStreakStore((state) => state.currentStreak);
   
   const currentTask = activeTaskId ? tasks.find((t) => t.id === activeTaskId) : null;
   const incompleteTasks = getIncompleteTasks();
+
+  // Handle completing the current task
+  const handleCompleteTask = (): void => {
+    if (!currentTask || !activeTaskId) return;
+    
+    // Stop the stopwatch and get elapsed time
+    const { elapsedSeconds: finalElapsed } = stopStopwatch();
+    
+    // Calculate points
+    const points = calculatePoints(currentTask.estimatedMinutes, finalElapsed, currentTask.priority);
+    const completedUnderEstimate = currentTask.estimatedMinutes 
+      ? (finalElapsed / 60) < currentTask.estimatedMinutes 
+      : false;
+    
+    // Add points to store
+    addPoints(points, completedUnderEstimate);
+    
+    // Complete the task
+    completeTask(activeTaskId, finalElapsed, points);
+    incrementTasksCompleted();
+    
+    // Play sound
+    playSound('taskComplete');
+    
+    // Check for badge unlocks
+    const badgeContext = {
+      tasksCompleted: totalTasksCompleted + 1,
+      currentStreak,
+      dailyPoints: totalPoints + points,
+      tasksUnderEstimate: tasksUnderEstimate + (completedUnderEstimate ? 1 : 0),
+      completedUnderEstimate,
+    };
+    
+    const unlockedBadge = checkBadgeUnlock(badgeContext);
+    if (unlockedBadge) {
+      playSound('badgeUnlock');
+      onBadgeUnlock?.(unlockedBadge);
+    }
+    
+    // Check streak
+    checkAndUpdateStreak(areAllTasksComplete());
+  };
 
   // Format time
   const formatTime = (seconds: number): string => {
@@ -82,6 +140,14 @@ export function FocusMode({ onExit }: FocusModeProps): JSX.Element {
                 Est: {currentTask.estimatedMinutes}m
               </span>
             )}
+            
+            <button
+              className={styles.focus__complete}
+              onClick={handleCompleteTask}
+              title="Complete task"
+            >
+              ✓ COMPLETE
+            </button>
           </div>
         ) : (
           <div className={styles.focus__task}>

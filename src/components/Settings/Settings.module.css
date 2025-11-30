@@ -129,6 +129,24 @@
   color: var(--color-bg-dark);
 }
 
+/* Export Button */
+.settings__exportBtn {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-xs);
+  background-color: transparent;
+  border: 2px solid var(--color-cyan);
+  border-radius: var(--radius-sm);
+  color: var(--color-cyan);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  letter-spacing: 1px;
+}
+
+.settings__exportBtn:hover {
+  background-color: var(--color-cyan);
+  color: var(--color-bg-dark);
+}
+
 /* Reset Button */
 .settings__resetBtn {
   padding: var(--space-xs) var(--space-sm);

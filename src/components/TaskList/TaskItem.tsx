@@ -113,6 +113,7 @@ export function TaskItem({
           className={`${styles['task-item__stopwatch']} ${isActive ? styles['task-item__stopwatch--active'] : ''}`}
           onClick={onStartStop}
           aria-label={isActive ? 'Stop tracking' : 'Start tracking'}
+          title={isActive ? 'Stop tracking (discards time)' : 'Start tracking time'}
         >
           {isActive ? '⏹' : '▶'}
         </button>

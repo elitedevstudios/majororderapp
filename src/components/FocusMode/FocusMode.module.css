@@ -112,9 +112,38 @@
   color: var(--color-text-primary);
 }
 
-.focus__pomodoros {
+.focus__estimate {
   font-size: var(--font-xs);
   color: var(--color-text-secondary);
+}
+
+.focus__complete {
+  margin-block-start: var(--space-sm);
+  padding: var(--space-xs) var(--space-md);
+  font-size: var(--font-sm);
+  font-family: inherit;
+  font-weight: bold;
+  color: var(--color-bg-dark);
+  background-color: var(--color-green);
+  border: 2px solid var(--color-green);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.focus__complete:hover {
+  background-color: transparent;
+  color: var(--color-green);
+}
+
+.focus__stats {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.focus__points {
+  font-size: var(--font-md);
+  color: var(--color-yellow);
 }
 
 .focus__controls {

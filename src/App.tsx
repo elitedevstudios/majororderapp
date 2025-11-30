@@ -116,7 +116,10 @@ function App(): JSX.Element {
       )}
 
       {isFocusMode && (
-        <FocusMode onExit={() => setIsFocusMode(false)} />
+        <FocusMode 
+          onExit={() => setIsFocusMode(false)} 
+          onBadgeUnlock={handleBadgeUnlock}
+        />
       )}
 
       {showDailyReview && (
