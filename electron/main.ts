@@ -118,6 +118,7 @@ function updateTrayMenu(timerText?: string): void {
 function toggleAlwaysOnTop(): void {
   isAlwaysOnTop = !isAlwaysOnTop;
   mainWindow?.setAlwaysOnTop(isAlwaysOnTop);
+  mainWindow?.setVisibleOnAllWorkspaces(isAlwaysOnTop, { visibleOnFullScreen: true });
   updateTrayMenu();
 }
 
