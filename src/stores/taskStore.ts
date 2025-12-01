@@ -238,10 +238,21 @@ export const useTaskStore = create<TaskState>((set, get) => ({
     
     const stats: DayStats[] = [];
     
-    // Get last 7 days including today
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
+    // Get the current week starting from Monday
+    const today = new Date();
+    const currentDayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    
+    // Calculate days since Monday (Monday = 0, Tuesday = 1, ..., Sunday = 6)
+    const daysSinceMonday = currentDayOfWeek === 0 ? 6 : currentDayOfWeek - 1;
+    
+    // Get Monday of current week
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - daysSinceMonday);
+    
+    // Build stats for Mon-Sun
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(monday);
+      date.setDate(monday.getDate() + i);
       const dateStr = date.toISOString().split('T')[0];
       const dayName = dayNames[date.getDay()];
       

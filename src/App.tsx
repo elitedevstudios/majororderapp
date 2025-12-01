@@ -13,7 +13,6 @@ import { TaskList } from './components/TaskList/TaskList';
 import { AddTask } from './components/AddTask/AddTask';
 import { StreakDisplay } from './components/Streak/StreakDisplay';
 import { WeeklyChart } from './components/WeeklyChart/WeeklyChart';
-import { Analytics } from './components/Analytics/Analytics';
 import { BadgeNotification } from './components/Badges/BadgeNotification';
 import { FocusMode } from './components/FocusMode/FocusMode';
 import { DailyReview } from './components/DailyReview/DailyReview';
@@ -24,7 +23,6 @@ function App(): JSX.Element {
   const [unlockedBadge, setUnlockedBadge] = useState<Badge | null>(null);
   const [isFocusMode, setIsFocusMode] = useState(false);
   const [showDailyReview, setShowDailyReview] = useState(false);
-  const [showAnalytics, setShowAnalytics] = useState(false);
   const [reviewDismissedToday, setReviewDismissedToday] = useState(false);
   const addTaskInputRef = useRef<HTMLInputElement>(null);
   const loadTasks = useTaskStore((state) => state.loadFromStorage);
@@ -115,14 +113,6 @@ function App(): JSX.Element {
           <WeeklyChart />
         </section>
 
-        {/* Analytics Button */}
-        <button 
-          className={styles.analyticsBtn}
-          onClick={() => setShowAnalytics(true)}
-        >
-          📊 View Analytics
-        </button>
-
         {/* Undo Toast */}
         {canUndo && (
           <div className={styles.undoToast}>
@@ -158,9 +148,6 @@ function App(): JSX.Element {
         />
       )}
 
-      {showAnalytics && (
-        <Analytics onClose={() => setShowAnalytics(false)} />
-      )}
     </div>
   );
 }

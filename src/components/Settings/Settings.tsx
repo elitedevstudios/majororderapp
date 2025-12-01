@@ -5,11 +5,13 @@ import { useTaskStore } from '../../stores/taskStore';
 import { useStreakStore } from '../../stores/streakStore';
 import { setSoundEnabled, playSound } from '../../utils/sound';
 import { downloadBackup } from '../../utils/export';
+import { Analytics } from '../Analytics/Analytics';
 import styles from './Settings.module.css';
 
 export function Settings(): JSX.Element {
   const [isOpen, setIsOpen] = useState(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
   
   const soundEnabled = useSettingsStore((state) => state.soundEnabled);
   const setStoreSoundEnabled = useSettingsStore((state) => state.setSoundEnabled);
@@ -99,6 +101,20 @@ export function Settings(): JSX.Element {
                 </button>
               </div>
 
+              {/* Analytics */}
+              <div className={styles.settings__option}>
+                <span className={styles.settings__label}>Productivity Stats</span>
+                <button
+                  className={styles.settings__analyticsBtn}
+                  onClick={() => {
+                    setShowAnalytics(true);
+                    playSound('click');
+                  }}
+                >
+                  📊 VIEW
+                </button>
+              </div>
+
               {/* Export Data */}
               <div className={styles.settings__option}>
                 <span className={styles.settings__label}>Backup Data</span>
@@ -152,6 +168,9 @@ export function Settings(): JSX.Element {
             </div>
           </div>
         </>
+      )}
+      {showAnalytics && (
+        <Analytics onClose={() => setShowAnalytics(false)} />
       )}
     </div>
   );

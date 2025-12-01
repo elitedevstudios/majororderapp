@@ -11,12 +11,24 @@
   -webkit-app-region: drag;
 }
 
+.header__left {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-md);
+}
+
 .header__title {
   font-size: var(--font-md);
   font-weight: normal;
   letter-spacing: 3px;
   color: var(--color-text-primary);
   margin: 0;
+}
+
+.header__date {
+  font-size: var(--font-xs);
+  color: var(--color-cyan);
+  letter-spacing: 1px;
 }
 
 .header__actions {

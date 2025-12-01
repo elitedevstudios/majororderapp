@@ -129,6 +129,24 @@
   color: var(--color-bg-dark);
 }
 
+/* Analytics Button */
+.settings__analyticsBtn {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-xs);
+  background-color: transparent;
+  border: 2px solid var(--color-yellow);
+  border-radius: var(--radius-sm);
+  color: var(--color-yellow);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  letter-spacing: 1px;
+}
+
+.settings__analyticsBtn:hover {
+  background-color: var(--color-yellow);
+  color: var(--color-bg-dark);
+}
+
 /* Export Button */
 .settings__exportBtn {
   padding: var(--space-xs) var(--space-sm);

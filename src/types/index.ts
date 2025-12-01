@@ -2,7 +2,6 @@
 export interface Task {
   id: string;
   title: string;
-  notes?: string; // Optional task notes/description
   priority: Priority;
   order: number;
   completed: boolean;
