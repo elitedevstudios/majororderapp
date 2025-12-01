@@ -1,6 +1,6 @@
 {
   "name": "major-order",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A pixel-style productivity app with gamified task management, Pomodoro timer, and streak tracking",
   "main": "dist-electron/main.js",
   "author": "Major Order Team",

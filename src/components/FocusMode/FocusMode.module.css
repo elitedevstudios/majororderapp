@@ -152,7 +152,8 @@
 }
 
 .focus__btn--start,
-.focus__btn--pause {
+.focus__btn--pause,
+.focus__btn--stop {
   padding: var(--space-sm) var(--space-xl);
   font-size: var(--font-sm);
   font-family: inherit;
@@ -182,6 +183,17 @@
 .focus__btn--pause:hover {
   background-color: transparent;
   color: var(--color-yellow);
+}
+
+.focus__btn--stop {
+  background-color: var(--color-red);
+  border-color: var(--color-red);
+  color: var(--color-bg-dark);
+}
+
+.focus__btn--stop:hover {
+  background-color: transparent;
+  color: var(--color-red);
 }
 
 .focus__hint {

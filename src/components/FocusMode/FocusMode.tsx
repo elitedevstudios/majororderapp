@@ -18,6 +18,9 @@ export function FocusMode({ onExit, onBadgeUnlock }: FocusModeProps): JSX.Elemen
   const tick = useStopwatchStore((state) => state.tick);
   const totalPoints = useStopwatchStore((state) => state.totalPoints);
   const stopStopwatch = useStopwatchStore((state) => state.stopStopwatch);
+  const pauseStopwatch = useStopwatchStore((state) => state.pauseStopwatch);
+  const resumeStopwatch = useStopwatchStore((state) => state.resumeStopwatch);
+  const startStandaloneStopwatch = useStopwatchStore((state) => state.startStandaloneStopwatch);
   const calculatePoints = useStopwatchStore((state) => state.calculatePoints);
   const addPoints = useStopwatchStore((state) => state.addPoints);
   const tasksUnderEstimate = useStopwatchStore((state) => state.tasksUnderEstimate);
@@ -78,6 +81,23 @@ export function FocusMode({ onExit, onBadgeUnlock }: FocusModeProps): JSX.Elemen
     checkAndUpdateStreak(areAllTasksComplete());
   };
 
+  // Handle standalone stopwatch controls
+  const handleStartStopwatch = (): void => {
+    startStandaloneStopwatch();
+  };
+
+  const handlePauseStopwatch = (): void => {
+    pauseStopwatch();
+  };
+
+  const handleResumeStopwatch = (): void => {
+    resumeStopwatch();
+  };
+
+  const handleStopStopwatch = (): void => {
+    stopStopwatch();
+  };
+
   // Format time
   const formatTime = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
@@ -122,13 +142,62 @@ export function FocusMode({ onExit, onBadgeUnlock }: FocusModeProps): JSX.Elemen
 
       <div className={styles.focus__content}>
         <span className={styles.focus__mode}>
-          {status === 'running' ? 'TRACKING TIME' : 'FOCUS MODE'}
+          {status === 'running' ? 'TRACKING TIME' : status === 'paused' ? 'PAUSED' : 'FOCUS MODE'}
         </span>
         
         <div className={styles.focus__timer}>
           <span className={styles.focus__time}>
-            {status === 'running' ? formatTime(elapsedSeconds) : '--:--'}
+            {status !== 'idle' ? formatTime(elapsedSeconds) : '00:00'}
           </span>
+        </div>
+
+        {/* Standalone stopwatch controls */}
+        <div className={styles.focus__controls}>
+          {status === 'idle' && (
+            <button
+              className={styles['focus__btn--start']}
+              onClick={handleStartStopwatch}
+              title="Start stopwatch"
+            >
+              ▶ START
+            </button>
+          )}
+          {status === 'running' && (
+            <>
+              <button
+                className={styles['focus__btn--pause']}
+                onClick={handlePauseStopwatch}
+                title="Pause stopwatch"
+              >
+                ⏸ PAUSE
+              </button>
+              <button
+                className={styles['focus__btn--stop']}
+                onClick={handleStopStopwatch}
+                title="Stop stopwatch"
+              >
+                ⏹ STOP
+              </button>
+            </>
+          )}
+          {status === 'paused' && (
+            <>
+              <button
+                className={styles['focus__btn--start']}
+                onClick={handleResumeStopwatch}
+                title="Resume stopwatch"
+              >
+                ▶ RESUME
+              </button>
+              <button
+                className={styles['focus__btn--stop']}
+                onClick={handleStopStopwatch}
+                title="Stop stopwatch"
+              >
+                ⏹ STOP
+              </button>
+            </>
+          )}
         </div>
 
         {currentTask ? (
@@ -149,13 +218,20 @@ export function FocusMode({ onExit, onBadgeUnlock }: FocusModeProps): JSX.Elemen
               ✓ COMPLETE
             </button>
           </div>
+        ) : status !== 'idle' ? (
+          <div className={styles.focus__task}>
+            <span className={styles.focus__taskLabel}>STANDALONE TIMER</span>
+            <span className={styles.focus__taskTitle}>
+              Focus session in progress
+            </span>
+          </div>
         ) : (
           <div className={styles.focus__task}>
             <span className={styles.focus__taskLabel}>NO ACTIVE TASK</span>
             <span className={styles.focus__taskTitle}>
               {incompleteTasks.length > 0 
-                ? 'Click ▶ on a task to start tracking'
-                : 'Add a task to begin'}
+                ? 'Start the timer or click ▶ on a task'
+                : 'Start the timer to begin focusing'}
             </span>
           </div>
         )}

@@ -7,7 +7,8 @@ interface StopwatchStoreState extends StopwatchState {
   tasksUnderEstimate: number; // Track for badge
   
   // Actions
-  startStopwatch: (taskId: string) => void;
+  startStopwatch: (taskId: string | null) => void;
+  startStandaloneStopwatch: () => void;
   pauseStopwatch: () => void;
   resumeStopwatch: () => void;
   stopStopwatch: () => { elapsedSeconds: number };
@@ -46,7 +47,7 @@ export const useStopwatchStore = create<StopwatchStoreState>((set, get) => ({
   dailyPoints: 0,
   tasksUnderEstimate: 0,
 
-  startStopwatch: (taskId: string) => {
+  startStopwatch: (taskId: string | null) => {
     const { status, activeTaskId } = get();
     
     // If already running on same task, do nothing
@@ -60,6 +61,22 @@ export const useStopwatchStore = create<StopwatchStoreState>((set, get) => ({
     set({
       status: 'running',
       activeTaskId: taskId,
+      elapsedSeconds: 0,
+      startedAt: Date.now(),
+    });
+    
+    window.electronAPI?.updateTimer(get().getFormattedTime(), 'running');
+  },
+
+  startStandaloneStopwatch: () => {
+    const { status } = get();
+    
+    // If already running, do nothing
+    if (status === 'running') return;
+    
+    set({
+      status: 'running',
+      activeTaskId: null,
       elapsedSeconds: 0,
       startedAt: Date.now(),
     });
